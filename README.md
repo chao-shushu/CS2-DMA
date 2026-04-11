@@ -1,6 +1,7 @@
 **English** | **[中文](README_CN.md)**
 
-# CS2-DMA![3feefde8e0a9558fad9e715bdb83c18c](https://github.com/user-attachments/assets/f1e0a097-3cdd-484e-91c6-247a3f28c8a3)
+# CS2-DMA
+![3feefde8e0a9558fad9e715bdb83c18c](https://github.com/user-attachments/assets/5f5adad4-4aa0-4f44-888e-cc24f6bc5231)
 
 
 An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory Access) hardware to read game memory via FPGA devices and render ESP, radar, grenade helper, and more on a separate machine. This project does not and will never include aimbot-related features via kmbox or similar devices.
