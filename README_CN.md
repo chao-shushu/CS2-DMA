@@ -360,14 +360,14 @@ cd CS2-DMA
 
 - **偏移量时效性**：每次 CS2 更新后偏移量可能失效，需使用 `tools/update-offsets.ps1` 重新获取
 - **Windows 键盘状态**：Win11 不同版本的 `gafAsyncKeyState` 内核偏移不同，程序内置了 PDB 解析 + 硬编码偏移两套策略，极端情况下可能需要手动更新偏移表
-- **FPGA 兼容性**：仅测试过常见 FPGA DMA 设备，其他设备可能需要调整 `InitDMA()` 的参数
-- **反作弊**：本项目为学习和研究目的，使用者需自行承担风险
+- **FPGA 兼容性**：仅测试过常见 FPGA DMA(75t加固件) 设备，其他设备可能需要调整 `InitDMA()` 的参数
+- **反作弊**：虽然是只读类型的dma不容易被检测,但请注意本项目为学习和研究目的,不为盈利!使用者需自行承担风险!!!
 
 ---
 
 ## 致谢
 
-- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — 初始代码基础
+- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — 初始代码基础与灵感来源
 - [MemProcFS](https://github.com/ufrisk/MemProcFS) — DMA 内存访问框架
 - [cs2-dumper](https://github.com/a2x/cs2-dumper) — 偏移量自动化工具
 - [cs2_webradar](https://github.com/clauadv/cs2_webradar) — Web Radar 前端
