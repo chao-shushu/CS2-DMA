@@ -26,25 +26,31 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Snaplines** — Lines from screen edge to enemies
 - **Head Dot** — Head position marker
 - **Safe Zone** — Crosshair area ESP cutout to reduce visual clutter
+<img width="827" height="524" alt="image" src="https://github.com/user-attachments/assets/6589c93a-007a-467f-966b-6b6126f92d60" />
 
 ### Bomb ESP
 - Planted / Carried / Dropped / Defusing status display
 - Explosion and defuse countdown timers
+<img width="837" height="517" alt="image" src="https://github.com/user-attachments/assets/8f7d1785-b21e-41a5-80e2-ebd7e122f4aa" />
 
 ### Projectile ESP
 - Real-time display of in-flight flashbangs, smokes, HE grenades, molotovs, and decoys
 - Explosion/effect radius circle rendering
+<img width="838" height="523" alt="image" src="https://github.com/user-attachments/assets/79e82266-5a15-4029-ab8e-b7b8fa647302" />
 
 ### Web Radar
 - Built-in WebSocket server
 - Uses [cs2_webradar](https://github.com/clauadv/cs2_webradar) frontend
 - Any LAN device can view real-time radar via browser
+<img width="840" height="517" alt="image" src="https://github.com/user-attachments/assets/6dbaf41a-4dfd-41f8-85e4-8fa2d9b1a52f" />
+<img width="773" height="457" alt="image" src="https://github.com/user-attachments/assets/5fb4025a-d06b-4f2e-b81f-ba9b55281252" />
 
 ### Grenade Helper
 - Per-map preset throw positions (JSON format)
 - Real-time direction arrow + distance indicator
 - Record / edit / delete custom positions
 - Supports flash, smoke, HE, and molotov types
+<img width="1615" height="1031" alt="image" src="https://github.com/user-attachments/assets/9fb5df0e-9699-4a5a-8253-ca65b0d2aad5" />
 
 ### DMA Low-Latency Optimization
 - **Scatter Batch Reads** — All entity data is merged into a single DMA operation, eliminating per-read PCIe round-trip latency
