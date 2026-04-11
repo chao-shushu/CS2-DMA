@@ -1,9 +1,9 @@
 ---
-name: Feature request
+name: Feature request/功能请求
 about: Suggest an idea for this project
-title: ''
+title: feature
 labels: ''
-assignees: ''
+assignees: kuchaomc
 
 ---
 
