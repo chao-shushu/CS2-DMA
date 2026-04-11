@@ -11,7 +11,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> ⭐ If you like this project, please give it a Star to support continued development!
+> ⭐ If you like this project, please give it a Star to support the author's continued updates!
 
 ---
 
@@ -58,14 +58,17 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Scatter Batch Reads** — All entity data is merged into a single DMA operation, eliminating per-read PCIe round-trip latency
 - **On-Demand Reading** — Only reads fields required by currently enabled features; the entire data pipeline sleeps when no features are active — zero wasted transfers
 - **Tiered Entity Caching** — High-frequency data (position, health) is read every frame; low-frequency data (name, team) updates at 5/50 frame intervals, reducing 80%+ redundant reads
-- **Zero-Copy Snapshot** — `DataThread` holds a write lock only briefly during pointer swap; render thread reads without blocking — data latency < 1 frame
+- **Zero-Copy Snapshot** — `DataThread` holds a write lock only briefly during pointer swap; render thread reads without blocking — data latency < 1 frame, say goodbye to flickering boxes
 
 ### Other
 - **Config System** — Create / save / load / delete multiple configs, auto-loads `_autosave.config` on startup
 - **Multi-language** — Chinese / English toggle
 - **Logging System** — Leveled logging (TRACE → FATAL) with ring buffer for crash diagnostics
 - **Crash Handler** — SEH + `std::terminate` capture, auto-generates `.log` + `.dmp` with recent logs, feature state, and system info
-
+- **Extreme Stability** — Due to the nature of DMA transfers, dirty data is unavoidable. This project focuses on optimizing data validation and reliability — no flickering boxes, no missed players
+- **Encryption & Decryption** — Supports CR3 (DTB) repair and automatically enables when encryption is detected, but this is NOT true CR3 decryption! For encrypted environments, contact the author for technical support
+- **VTD** — Not recommended to enable. Although DMA read frequency has been optimized, it may still be detected
+- **Platform Availability** — Works on major competitive platforms, but please do not use in real player matches
 ---
 
 ## Quick Start
@@ -362,14 +365,14 @@ Offsets are dynamically loaded from JSON files (`Offsets.cpp` → `Offset::Updat
 
 - **Offset expiry**: Offsets may become invalid after each CS2 update — use `tools/update-offsets.ps1` to re-obtain
 - **Windows keyboard state**: Different Win11 versions have different `gafAsyncKeyState` kernel offsets. The program includes both PDB resolution and hardcoded offset strategies; in rare cases, manual offset table updates may be needed
-- **FPGA compatibility**: Only tested with common FPGA DMA devices; other devices may require adjustments to `InitDMA()` parameters
-- **Anti-cheat**: This project is for educational and research purposes. Use at your own risk
+- **FPGA compatibility**: Only tested with common FPGA DMA (75T reinforced firmware) devices; other devices may require adjustments to `InitDMA()` parameters
+- **Anti-cheat**: Although read-only DMA is harder to detect, please note this project is for learning and research purposes only, not for profit! Use at your own risk!!!
 
 ---
 
 ## Credits
 
-- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — Initial codebase
+- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — Initial codebase and inspiration
 - [MemProcFS](https://github.com/ufrisk/MemProcFS) — DMA memory access framework
 - [cs2-dumper](https://github.com/a2x/cs2-dumper) — Automated offset dumper
 - [cs2_webradar](https://github.com/clauadv/cs2_webradar) — Web Radar frontend
