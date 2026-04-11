@@ -26,25 +26,31 @@
 - **连线** — 从屏幕边缘到敌方的引导线
 - **头部圆点** — 头部位置标记
 - **安全区域** — 准心附近 ESP 裁切，减少视觉干扰
+<img width="827" height="524" alt="image" src="https://github.com/user-attachments/assets/6589c93a-007a-467f-966b-6b6126f92d60" />
 
 ### 炸弹 ESP
 - 炸弹已安装 / 被携带 / 掉落 / 正在拆除状态显示
 - 爆炸倒计时与拆除倒计时
+<img width="837" height="517" alt="image" src="https://github.com/user-attachments/assets/8f7d1785-b21e-41a5-80e2-ebd7e122f4aa" />
 
 ### 投掷物 ESP
 - 实时显示飞行中的闪光弹、烟雾弹、HE、燃烧弹、诱饵弹
 - 爆炸/效果范围圈渲染
+<img width="838" height="523" alt="image" src="https://github.com/user-attachments/assets/79e82266-5a15-4029-ab8e-b7b8fa647302" />
 
 ### Web Radar（网页雷达）
 - 内嵌 WebSocket 服务器
 - 使用 [cs2_webradar](https://github.com/clauadv/cs2_webradar) 前端
 - 局域网内任何设备浏览器即可查看实时雷达
+<img width="840" height="517" alt="image" src="https://github.com/user-attachments/assets/6dbaf41a-4dfd-41f8-85e4-8fa2d9b1a52f" />
+<img width="773" height="457" alt="image" src="https://github.com/user-attachments/assets/5fb4025a-d06b-4f2e-b81f-ba9b55281252" />
 
 ### Grenade Helper（投掷物助手）
 - 按地图加载预设投掷点位（JSON 格式）
 - 实时方向引导箭头 + 距离提示
 - 支持录制/编辑/删除自定义点位
 - 支持闪光、烟雾、HE、燃烧弹四种类型
+<img width="1615" height="1031" alt="image" src="https://github.com/user-attachments/assets/9fb5df0e-9699-4a5a-8253-ca65b0d2aad5" />
 
 ### DMA 低延迟优化
 - **Scatter 批量读取** — 所有实体数据合并为单次 DMA 操作，避免逐个读取带来的 PCIe 往返延迟
