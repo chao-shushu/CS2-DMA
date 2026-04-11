@@ -7,6 +7,8 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+> ⭐ 如果你喜欢本项目，请为仓库点亮一颗 Star，支持后续持续更新！
+
 ---
 
 ## 功能特性
@@ -47,6 +49,86 @@
 - **多语言** — 中文 / 英文切换
 - **日志系统** — 分级日志（TRACE → FATAL），环形缓冲区供崩溃诊断
 - **崩溃处理** — SEH + `std::terminate` 捕获，自动生成 `.log` + `.dmp`，含最近日志、功能状态、系统信息
+
+---
+
+## 快速上手
+
+### 下载
+
+前往 [Releases](https://github.com/kuchaomc/CS2-DMA/releases) 页面下载最新版本的 `CS2-DMA-Release.zip`。
+
+### 解压后的目录结构
+
+```
+CS2-DMA/
+├── cs2.exe              # 主程序
+├── vmm.dll              # MemProcFS 核心库
+├── leechcore.dll        # LeechCore 设备通信
+├── FTD3XX.dll           # FTDI USB3 驱动
+├── data/
+│   ├── offsets.json     # 游戏偏移量
+│   ├── client_dll.json  # client.dll 偏移量
+│   └── grenade-helper/  # 投掷物助手地图数据
+├── saved/configs/       # 配置存储（自动生成）
+└── logs/                # 日志目录（自动生成）
+```
+
+### 运行步骤
+
+1. **连接 FPGA 设备** — 确保 DMA 硬件已正确连接到副机
+2. **在主机上启动 CS2** — 正常打开游戏并进入对局
+3. **在副机上运行 `cs2.exe`** — 程序会自动完成以下流程：
+   - 初始化 DMA 连接
+   - 搜索 `cs2.exe` 进程
+   - 检测到游戏后自动开始渲染 ESP
+4. **按 `F8` 打开菜单** — 在菜单中开启/关闭各项功能
+
+### 菜单功能说明
+
+| Tab | 功能 |
+|-----|------|
+| **Visuals** | 方框、骨骼、血条、护甲条、武器、距离、名称、视线、连线等 ESP 功能 |
+| **Radar** | Web Radar 开关、端口、推送频率 |
+| **Grenade** | 投掷物助手开关、录制点位、编辑/删除 |
+| **Settings** | 帧率限制、VSync、语言切换、队友过滤 |
+| **Config** | 配置文件的创建、保存、加载、删除 |
+
+### 偏移量过期怎么办？
+
+CS2 每次更新后游戏偏移量可能失效，表现为 ESP 不显示或数据异常。解决方法：
+
+1. 从 [cs2-dumper](https://github.com/a2x/cs2-dumper) 获取最新的 `offsets.json` 和 `client_dll.json`
+2. 替换 `data/` 目录下的对应文件
+3. 重启程序即可
+
+> 如果你是从源码构建的，也可以使用 `tools/update-offsets.ps1` 脚本自动更新。
+
+---
+
+## 反馈 Bug
+
+发现问题？请通过 [GitHub Issues](https://github.com/kuchaomc/CS2-DMA/issues) 提交 Bug 报告。
+
+### 提交 Issue 时请包含以下信息
+
+1. **问题描述** — 简明描述你遇到的问题
+2. **复现步骤** — 如何触发这个 Bug
+3. **日志文件** — 程序运行目录 `logs/` 下的最新 `.log` 文件
+4. **崩溃转储**（如果程序崩溃）— `logs/` 下的 `crash_*.log` 和 `crash_*.dmp` 文件
+5. **环境信息**：
+   - Windows 版本（如 Win11 24H2）
+   - FPGA 设备型号
+   - CS2 是否刚更新过（偏移量是否最新）
+
+### 日志和崩溃文件在哪？
+
+程序运行时会在 `logs/` 目录下自动生成：
+- `cs2dma_YYYYMMDD_HHMMSS.log` — 运行日志
+- `crash_YYYYMMDD_HHMMSS.log` — 崩溃诊断报告（含最近日志、功能状态、系统信息）
+- `crash_YYYYMMDD_HHMMSS.dmp` — MiniDump 转储文件
+
+> 提交 Issue 时附上这些文件能帮助快速定位问题。
 
 ---
 
