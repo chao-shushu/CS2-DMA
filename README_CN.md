@@ -1,6 +1,7 @@
 **[English](README.md)** | **中文**
 
 # CS2-DMA
+![3feefde8e0a9558fad9e715bdb83c18c](https://github.com/user-attachments/assets/868af1fa-e5d1-4714-a7d9-ca4ba2f1a506)
 
 基于 DMA（Direct Memory Access）硬件的 CS2 外部辅助工具，使用 C++ 开发，通过 FPGA 设备读取游戏内存，在独立副机上渲染 ESP、雷达、投掷物助手等功能。本项目不包含且以后也不会包含kmbox等实现的自瞄相关功能,菜就多练
 
