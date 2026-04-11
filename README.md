@@ -7,7 +7,7 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> ⭐ 如果你喜欢本项目，请为仓库点亮一颗 Star，支持后续持续更新！
+如果你喜欢本项目，请为仓库点Star，支持作者持续更新！
 
 ---
 
