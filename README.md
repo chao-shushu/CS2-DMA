@@ -46,6 +46,12 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - Record / edit / delete custom positions
 - Supports flash, smoke, HE, and molotov types
 
+### DMA Low-Latency Optimization
+- **Scatter Batch Reads** — All entity data is merged into a single DMA operation, eliminating per-read PCIe round-trip latency
+- **On-Demand Reading** — Only reads fields required by currently enabled features; the entire data pipeline sleeps when no features are active — zero wasted transfers
+- **Tiered Entity Caching** — High-frequency data (position, health) is read every frame; low-frequency data (name, team) updates at 5/50 frame intervals, reducing 80%+ redundant reads
+- **Zero-Copy Snapshot** — `DataThread` holds a write lock only briefly during pointer swap; render thread reads without blocking — data latency < 1 frame
+
 ### Other
 - **Config System** — Create / save / load / delete multiple configs, auto-loads `_autosave.config` on startup
 - **Multi-language** — Chinese / English toggle
