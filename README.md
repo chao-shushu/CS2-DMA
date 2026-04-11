@@ -157,7 +157,7 @@ cd CS2-DMA
 
 脚本会自动调用 `external/dumper/` 中的 cs2-dumper，将结果写入 `data/offsets.json` 和 `data/client_dll.json`。
 
-> 偏移量是版本相关的静态值，dump 一次即可，无需每次启动都运行。
+> 偏移量是版本相关的静态值，游戏更新后获取一次即可，无需每次启动都运行。
 
 ---
 
