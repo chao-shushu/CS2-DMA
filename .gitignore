@@ -1,0 +1,42 @@
+# === Build artifacts ===
+build/
+*.exe
+*.pdb
+*.obj
+*.lib
+*.exp
+*.ilk
+*.log
+*.iobj
+*.ipdb
+x64/
+
+# === IDE / Editor ===
+.vs/
+.vscode/
+.windsurf/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.cachefile
+*.VC.db
+*.VC.opendb
+imgui.ini
+
+# === Runtime / User data ===
+logs/
+saved/
+
+# === Docs (maintained separately) ===
+docs/
+
+# === External subprojects (too large for main repo) ===
+external/
+
+# === OS / Misc ===
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.tmp
+*.bak

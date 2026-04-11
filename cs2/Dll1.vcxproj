@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{44133432-3a76-480f-add6-ad30d445d783}</ProjectGuid>
+    <RootNamespace>Dll1</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>cs2</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>chilkat\include;$(ProjectDir)includes;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(ProjectDir)includes;$(ExternalIncludePath)</ExternalIncludePath>
+    <ReferencePath>$(ProjectDir)includes;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)includes;chilkat\libs;$(LibraryPath)</LibraryPath>
+    <OutDir>C:\CS2-DMA\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DLL1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DLL1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;DLL1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;NDEBUG;DLL1_EXPORTS;_WINDOWS;_CONSOLE;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)SDK\Include;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Normaliz.lib;wldap32.lib;crypt32.lib;Ws2_32.lib;leechcore.lib;vmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)SDK\Lib\x64;$(ProjectDir)includes;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="game\Bone.cpp" />
+    <ClCompile Include="game\Entity.cpp" />
+    <ClCompile Include="game\Game.cpp" />
+    <ClCompile Include="game\GlobalVars.cpp" />
+    <ClCompile Include="game\Offsets.cpp" />
+    <ClCompile Include="render\Cheats.cpp" />
+    <ClCompile Include="render\Render.cpp" />
+    <ClCompile Include="render\GUI.cpp" />
+    <ClCompile Include="render\GrenadeHelper.cpp" />
+    <ClCompile Include="game\Threads.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui_draw.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui_tables.cpp" />
+    <ClCompile Include="OS-ImGui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="OS-ImGui\OS-ImGui.cpp" />
+    <ClCompile Include="OS-ImGui\OS-ImGui_Base.cpp" />
+    <ClCompile Include="OS-ImGui\OS-ImGui_External.cpp" />
+    <ClCompile Include="render\WebRadar.cpp" />
+    <ClCompile Include="config\SettingsManager.cpp" />
+    <ClCompile Include="config\ConfigMenu.cpp" />
+    <ClCompile Include="config\ConfigSaver.cpp" />
+    <ClCompile Include="utils\Logger.cpp" />
+    <ClCompile Include="utils\CrashHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="game\AppState.h" />
+    <ClInclude Include="game\Bone.h" />
+    <ClInclude Include="game\Entity.h" />
+    <ClInclude Include="game\Game.h" />
+    <ClInclude Include="game\GlobalVars.h" />
+    <ClInclude Include="game\MemoryHelper.h" />
+    <ClInclude Include="game\MenuConfig.h" />
+    <ClInclude Include="game\Offsets.h" />
+    <ClInclude Include="game\View.h" />
+    <ClInclude Include="render\Cheats.h" />
+    <ClInclude Include="render\GUI.h" />
+    <ClInclude Include="render\Render.h" />
+    <ClInclude Include="render\GrenadeHelper.h" />
+    <ClInclude Include="game\Threads.h" />
+    <ClInclude Include="config\Language.h" />
+    <ClInclude Include="config\SettingsManager.h" />
+    <ClInclude Include="config\ConfigMenu.h" />
+    <ClInclude Include="config\ConfigSaver.h" />
+    <ClInclude Include="CustomFont.h" />
+    <ClInclude Include="utils\base64.h" />
+    <ClInclude Include="OS-ImGui\imgui\imconfig.h" />
+    <ClInclude Include="OS-ImGui\imgui\imgui.h" />
+    <ClInclude Include="OS-ImGui\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="OS-ImGui\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="OS-ImGui\imgui\imgui_internal.h" />
+    <ClInclude Include="OS-ImGui\imgui\imstb_rectpack.h" />
+    <ClInclude Include="OS-ImGui\imgui\imstb_textedit.h" />
+    <ClInclude Include="OS-ImGui\imgui\imstb_truetype.h" />
+    <ClInclude Include="OS-ImGui\OS-ImGui.h" />
+    <ClInclude Include="OS-ImGui\OS-ImGui_Base.h" />
+    <ClInclude Include="OS-ImGui\OS-ImGui_Exception.hpp" />
+    <ClInclude Include="OS-ImGui\OS-ImGui_External.h" />
+    <ClInclude Include="OS-ImGui\OS-ImGui_Struct.h" />
+    <ClInclude Include="render\WebRadar.h" />
+    <ClInclude Include="utils\Logger.h" />
+    <ClInclude Include="utils\CrashHandler.h" />
+    <ClInclude Include="utils\ProcessManager.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+    </PropertyGroup>
+  </Target>
+</Project>
