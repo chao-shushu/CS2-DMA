@@ -72,7 +72,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 
 ### Download
 
-Go to the [Releases](https://github.com/kuchaomc/CS2-DMA/releases) page and download the latest `CS2-DMA-Release.zip`.
+Go to the [Releases](https://github.com/chao-shushu/CS2-DMA/releases) page and download the latest `CS2-DMA-Release.zip`.
 
 ### Directory Structure After Extraction
 
@@ -124,7 +124,7 @@ After each CS2 update, game offsets may become invalid, causing ESP to not displ
 
 ## Bug Reports
 
-Found an issue? Please submit a bug report via [GitHub Issues](https://github.com/kuchaomc/CS2-DMA/issues).
+Found an issue? Please submit a bug report via [GitHub Issues](https://github.com/chao-shushu/CS2-DMA/issues).
 
 ### What to Include in Your Issue
 
@@ -231,7 +231,7 @@ The following DLLs must be in the same directory as `cs2.exe`:
 
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/kuchaomc/CS2-DMA.git
+git clone https://github.com/chao-shushu/CS2-DMA.git
 cd CS2-DMA
 
 # 2. Open dma.slnx in Visual Studio, or build from command line:

@@ -3,7 +3,7 @@ name: Bug report/提交bug
 about: Create a report to help us improve
 title: BUG
 labels: ''
-assignees: kuchaomc
+assignees: chao-shushu
 
 ---
 
