@@ -1,364 +1,366 @@
+**English** | **[中文](README_CN.md)**
+
 # CS2-DMA
 
-基于 DMA（Direct Memory Access）硬件的 CS2 外部辅助工具，使用 C++ 开发，通过 FPGA 设备读取游戏内存，在独立副机上渲染 ESP、雷达、投掷物助手等功能。本项目不包含且以后也不会包含kmbox等实现的自瞄相关功能,菜就多练
+An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory Access) hardware to read game memory via FPGA devices and render ESP, radar, grenade helper, and more on a separate machine. This project does not and will never include aimbot-related features via kmbox or similar devices.
 
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Visual Studio](https://img.shields.io/badge/IDE-Visual%20Studio%202026-5C2D91?logo=visual-studio&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> ⭐ 如果你喜欢本项目，请为仓库点亮一颗 Star，支持后续持续更新！
+> ⭐ If you like this project, please give it a Star to support continued development!
 
 ---
 
-## 功能特性
+## Features
 
 ### Visuals / ESP
-- **方框 ESP** — 普通 / 动态 / 圆角三种样式，支持填充、圆角、粗细自定义
-- **骨骼 ESP** — 完整骨骼连线渲染
-- **血量条 / 护甲条** — 水平或垂直样式，带受伤回溯动画
-- **武器 ESP** — 显示当前持有武器名称
-- **距离 ESP** — 显示与敌方的距离
-- **玩家名称** — 显示玩家昵称
-- **视线射线** — 显示敌方朝向
-- **连线** — 从屏幕边缘到敌方的引导线
-- **头部圆点** — 头部位置标记
-- **安全区域** — 准心附近 ESP 裁切，减少视觉干扰
+- **Box ESP** — Normal / Dynamic / Corner styles with fill, rounding, and thickness options
+- **Bone ESP** — Full skeleton rendering
+- **Health Bar / Armor Bar** — Horizontal or vertical, with damage fallback animation
+- **Weapon ESP** — Displays currently held weapon name
+- **Distance ESP** — Shows distance to enemies
+- **Player Name** — Displays player nicknames
+- **Eye Ray** — Shows enemy view direction
+- **Snaplines** — Lines from screen edge to enemies
+- **Head Dot** — Head position marker
+- **Safe Zone** — Crosshair area ESP cutout to reduce visual clutter
 
-### 炸弹 ESP
-- 炸弹已安装 / 被携带 / 掉落 / 正在拆除状态显示
-- 爆炸倒计时与拆除倒计时
+### Bomb ESP
+- Planted / Carried / Dropped / Defusing status display
+- Explosion and defuse countdown timers
 
-### 投掷物 ESP
-- 实时显示飞行中的闪光弹、烟雾弹、HE、燃烧弹、诱饵弹
-- 爆炸/效果范围圈渲染
+### Projectile ESP
+- Real-time display of in-flight flashbangs, smokes, HE grenades, molotovs, and decoys
+- Explosion/effect radius circle rendering
 
-### Web Radar（网页雷达）
-- 内嵌 WebSocket 服务器
-- 使用 [cs2_webradar](https://github.com/clauadv/cs2_webradar) 前端
-- 局域网内任何设备浏览器即可查看实时雷达
+### Web Radar
+- Built-in WebSocket server
+- Uses [cs2_webradar](https://github.com/clauadv/cs2_webradar) frontend
+- Any LAN device can view real-time radar via browser
 
-### Grenade Helper（投掷物助手）
-- 按地图加载预设投掷点位（JSON 格式）
-- 实时方向引导箭头 + 距离提示
-- 支持录制/编辑/删除自定义点位
-- 支持闪光、烟雾、HE、燃烧弹四种类型
+### Grenade Helper
+- Per-map preset throw positions (JSON format)
+- Real-time direction arrow + distance indicator
+- Record / edit / delete custom positions
+- Supports flash, smoke, HE, and molotov types
 
-### 其他
-- **配置系统** — 创建 / 保存 / 加载 / 删除多套配置，启动自动加载 `_autosave.config`
-- **多语言** — 中文 / 英文切换
-- **日志系统** — 分级日志（TRACE → FATAL），环形缓冲区供崩溃诊断
-- **崩溃处理** — SEH + `std::terminate` 捕获，自动生成 `.log` + `.dmp`，含最近日志、功能状态、系统信息
+### Other
+- **Config System** — Create / save / load / delete multiple configs, auto-loads `_autosave.config` on startup
+- **Multi-language** — Chinese / English toggle
+- **Logging System** — Leveled logging (TRACE → FATAL) with ring buffer for crash diagnostics
+- **Crash Handler** — SEH + `std::terminate` capture, auto-generates `.log` + `.dmp` with recent logs, feature state, and system info
 
 ---
 
-## 快速上手
+## Quick Start
 
-### 下载
+### Download
 
-前往 [Releases](https://github.com/kuchaomc/CS2-DMA/releases) 页面下载最新版本的 `CS2-DMA-Release.zip`。
+Go to the [Releases](https://github.com/kuchaomc/CS2-DMA/releases) page and download the latest `CS2-DMA-Release.zip`.
 
-### 解压后的目录结构
+### Directory Structure After Extraction
 
 ```
 CS2-DMA/
-├── cs2.exe              # 主程序
-├── vmm.dll              # MemProcFS 核心库
-├── leechcore.dll        # LeechCore 设备通信
-├── FTD3XX.dll           # FTDI USB3 驱动
+├── cs2.exe              # Main executable
+├── vmm.dll              # MemProcFS core library
+├── leechcore.dll        # LeechCore device communication
+├── FTD3XX.dll           # FTDI USB3 driver
 ├── data/
-│   ├── offsets.json     # 游戏偏移量
-│   ├── client_dll.json  # client.dll 偏移量
-│   └── grenade-helper/  # 投掷物助手地图数据
-├── saved/configs/       # 配置存储（自动生成）
-└── logs/                # 日志目录（自动生成）
+│   ├── offsets.json     # Game offsets
+│   ├── client_dll.json  # client.dll offsets
+│   └── grenade-helper/  # Grenade helper map data
+├── saved/configs/       # Config storage (auto-generated)
+└── logs/                # Log directory (auto-generated)
 ```
 
-### 运行步骤
+### How to Run
 
-1. **连接 FPGA 设备** — 确保 DMA 硬件已正确连接到副机
-2. **在主机上启动 CS2** — 正常打开游戏并进入对局
-3. **在副机上运行 `cs2.exe`** — 程序会自动完成以下流程：
-   - 初始化 DMA 连接
-   - 搜索 `cs2.exe` 进程
-   - 检测到游戏后自动开始渲染 ESP
-4. **按 `F8` 打开菜单** — 在菜单中开启/关闭各项功能
+1. **Connect FPGA device** — Ensure your DMA hardware is properly connected to the secondary machine
+2. **Launch CS2 on the main machine** — Open the game and join a match
+3. **Run `cs2.exe` on the secondary machine** — The program will automatically:
+   - Initialize DMA connection
+   - Search for the `cs2.exe` process
+   - Start rendering ESP once the game is detected
+4. **Press `F8` to open the menu** — Toggle features on/off from the menu
 
-### 菜单功能说明
+### Menu Tabs
 
-| Tab | 功能 |
-|-----|------|
-| **Visuals** | 方框、骨骼、血条、护甲条、武器、距离、名称、视线、连线等 ESP 功能 |
-| **Radar** | Web Radar 开关、端口、推送频率 |
-| **Grenade** | 投掷物助手开关、录制点位、编辑/删除 |
-| **Settings** | 帧率限制、VSync、语言切换、队友过滤 |
-| **Config** | 配置文件的创建、保存、加载、删除 |
+| Tab | Description |
+|-----|-------------|
+| **Visuals** | Box, bone, health bar, armor bar, weapon, distance, name, eye ray, snaplines, etc. |
+| **Radar** | Web Radar toggle, port, broadcast interval |
+| **Grenade** | Grenade helper toggle, record positions, edit/delete |
+| **Settings** | Frame rate limit, VSync, language, team filter |
+| **Config** | Create, save, load, delete config files |
 
-### 偏移量过期怎么办？
+### Offsets Outdated?
 
-CS2 每次更新后游戏偏移量可能失效，表现为 ESP 不显示或数据异常。解决方法：
+After each CS2 update, game offsets may become invalid, causing ESP to not display or show incorrect data. To fix:
 
-1. 从 [cs2-dumper](https://github.com/a2x/cs2-dumper) 获取最新的 `offsets.json` 和 `client_dll.json`
-2. 替换 `data/` 目录下的对应文件
-3. 重启程序即可
+1. Get the latest `offsets.json` and `client_dll.json` from [cs2-dumper](https://github.com/a2x/cs2-dumper)
+2. Replace the corresponding files in the `data/` directory
+3. Restart the program
 
-> 如果你是从源码构建的，也可以使用 `tools/update-offsets.ps1` 脚本自动更新。
-
----
-
-## 反馈 Bug
-
-发现问题？请通过 [GitHub Issues](https://github.com/kuchaomc/CS2-DMA/issues) 提交 Bug 报告。
-
-### 提交 Issue 时请包含以下信息
-
-1. **问题描述** — 简明描述你遇到的问题
-2. **复现步骤** — 如何触发这个 Bug
-3. **日志文件** — 程序运行目录 `logs/` 下的最新 `.log` 文件
-4. **崩溃转储**（如果程序崩溃）— `logs/` 下的 `crash_*.log` 和 `crash_*.dmp` 文件
-5. **环境信息**：
-   - Windows 版本（如 Win11 24H2）
-   - FPGA 设备型号
-   - CS2 是否刚更新过（偏移量是否最新）
-
-### 日志和崩溃文件在哪？
-
-程序运行时会在 `logs/` 目录下自动生成：
-- `cs2dma_YYYYMMDD_HHMMSS.log` — 运行日志
-- `crash_YYYYMMDD_HHMMSS.log` — 崩溃诊断报告（含最近日志、功能状态、系统信息）
-- `crash_YYYYMMDD_HHMMSS.dmp` — MiniDump 转储文件
-
-> 提交 Issue 时附上这些文件能帮助快速定位问题。
+> If you're building from source, you can also use the `tools/update-offsets.ps1` script to update automatically.
 
 ---
 
-## 项目结构
+## Bug Reports
+
+Found an issue? Please submit a bug report via [GitHub Issues](https://github.com/kuchaomc/CS2-DMA/issues).
+
+### What to Include in Your Issue
+
+1. **Problem description** — Briefly describe the issue
+2. **Steps to reproduce** — How to trigger the bug
+3. **Log file** — The latest `.log` file from `logs/`
+4. **Crash dump** (if the program crashed) — `crash_*.log` and `crash_*.dmp` files from `logs/`
+5. **Environment info**:
+   - Windows version (e.g. Win11 24H2)
+   - FPGA device model
+   - Whether CS2 was recently updated (are offsets up to date?)
+
+### Where Are the Log Files?
+
+The program automatically generates files in the `logs/` directory:
+- `cs2dma_YYYYMMDD_HHMMSS.log` — Runtime log
+- `crash_YYYYMMDD_HHMMSS.log` — Crash diagnostic report (includes recent logs, feature state, system info)
+- `crash_YYYYMMDD_HHMMSS.dmp` — MiniDump file
+
+> Attaching these files to your issue helps resolve problems much faster.
+
+---
+
+## Project Structure
 
 ```
 CS2-DMA/
-├── cs2/                        # 主项目源码
-│   ├── main.cpp                # 入口：初始化日志、DMA、线程、渲染窗口
-│   ├── game/                   # 游戏逻辑层
-│   │   ├── Threads.cpp/h       # 线程定义（Connection / Data / SlowUpdate / Keys / WebRadar）
-│   │   ├── Entity.cpp/h        # 实体数据结构与读取
-│   │   ├── Bone.cpp/h          # 骨骼定义与解析
-│   │   ├── Game.cpp/h          # 游戏地址初始化
-│   │   ├── Offsets.cpp/h       # 偏移量解析（从 JSON 动态加载）
-│   │   ├── GlobalVars.cpp/h    # 全局变量读取
-│   │   ├── AppState.h          # 应用状态机枚举
-│   │   ├── MenuConfig.h        # 所有菜单配置项（inline 全局变量）
-│   │   └── View.h              # 视图矩阵
-│   ├── render/                 # 渲染层
-│   │   ├── Cheats.cpp/h        # ESP 主渲染入口 + GameSnapshot 定义
-│   │   ├── Render.cpp/h        # 渲染工具函数（方框、骨骼、血条等）
-│   │   ├── GUI.cpp/h           # ImGui 菜单界面
-│   │   ├── GrenadeHelper.cpp/h # 投掷物助手
-│   │   └── WebRadar.cpp/h      # WebSocket 服务器 + 雷达数据序列化
-│   ├── config/                 # 配置系统
-│   │   ├── ConfigSaver.cpp/h   # 配置文件读写
-│   │   ├── ConfigMenu.cpp/h    # 配置菜单 UI
-│   │   ├── SettingsManager.cpp/h # 全局设置（语言等）
-│   │   └── Language.h          # 多语言字符串
-│   ├── utils/                  # 工具模块
-│   │   ├── Logger.cpp/h        # 日志系统（单例、线程安全、环形缓冲区）
-│   │   ├── CrashHandler.cpp/h  # 崩溃处理（MiniDump + 诊断报告）
-│   │   ├── ProcessManager.h    # DMA 内存读取封装（VMMDLL）
-│   │   └── base64.h            # Base64 工具
-│   ├── includes/               # 第三方头文件（vmmdll.h、leechcore.h、rapidjson）
-│   ├── SDK/                    # VMMDLL 库文件（Lib/Include）
-│   └── OS-ImGui/               # ImGui 渲染框架封装
-├── data/                       # 运行时数据
-│   ├── offsets.json            # 游戏偏移量
-│   ├── client_dll.json         # client.dll 偏移量
-│   └── grenade-helper/         # 投掷物助手地图数据（JSON）
-├── saved/                      # 用户配置存储目录
-├── logs/                       # 日志和崩溃转储
-├── tools/                      # 自动化脚本
-│   ├── update-offsets.ps1      # 偏移量更新脚本（支持本地/DMA 模式）
-│   └── update-offsets.bat      # 批处理入口
-├── external/                   # 外部工具
-│   ├── dumper/                 # cs2-dumper（Rust，用于获取偏移量）
-│   └── webradar/               # cs2_webradar 前端（React）
-├── docs/                       # 文档
-│   ├── webradar-setup.md       # Web Radar 部署指南
-│   ├── edit-history.md         # 开发变更记录
-│   └── LICENSE                 # MIT 许可证
-└── dma.slnx                    # Visual Studio 解决方案
+├── cs2/                        # Main project source
+│   ├── main.cpp                # Entry: init logging, DMA, threads, render window
+│   ├── game/                   # Game logic layer
+│   │   ├── Threads.cpp/h       # Thread definitions (Connection / Data / SlowUpdate / Keys / WebRadar)
+│   │   ├── Entity.cpp/h        # Entity data structures and reading
+│   │   ├── Bone.cpp/h          # Bone definitions and parsing
+│   │   ├── Game.cpp/h          # Game address initialization
+│   │   ├── Offsets.cpp/h       # Offset parsing (dynamically loaded from JSON)
+│   │   ├── GlobalVars.cpp/h    # Global variable reading
+│   │   ├── AppState.h          # Application state machine enum
+│   │   ├── MenuConfig.h        # All menu config items (inline globals)
+│   │   └── View.h              # View matrix
+│   ├── render/                 # Rendering layer
+│   │   ├── Cheats.cpp/h        # ESP main render entry + GameSnapshot definition
+│   │   ├── Render.cpp/h        # Render utilities (box, bone, health bar, etc.)
+│   │   ├── GUI.cpp/h           # ImGui menu interface
+│   │   ├── GrenadeHelper.cpp/h # Grenade helper
+│   │   └── WebRadar.cpp/h      # WebSocket server + radar data serialization
+│   ├── config/                 # Config system
+│   │   ├── ConfigSaver.cpp/h   # Config file read/write
+│   │   ├── ConfigMenu.cpp/h    # Config menu UI
+│   │   ├── SettingsManager.cpp/h # Global settings (language, etc.)
+│   │   └── Language.h          # Multi-language strings
+│   ├── utils/                  # Utility modules
+│   │   ├── Logger.cpp/h        # Logging (singleton, thread-safe, ring buffer)
+│   │   ├── CrashHandler.cpp/h  # Crash handler (MiniDump + diagnostic report)
+│   │   ├── ProcessManager.h    # DMA memory read wrapper (VMMDLL)
+│   │   └── base64.h            # Base64 utility
+│   ├── includes/               # Third-party headers (vmmdll.h, leechcore.h, rapidjson)
+│   ├── SDK/                    # VMMDLL library files (Lib/Include)
+│   └── OS-ImGui/               # ImGui rendering framework wrapper
+├── data/                       # Runtime data
+│   ├── offsets.json            # Game offsets
+│   ├── client_dll.json         # client.dll offsets
+│   └── grenade-helper/         # Grenade helper map data (JSON)
+├── saved/                      # User config storage
+├── logs/                       # Logs and crash dumps
+├── tools/                      # Automation scripts
+│   ├── update-offsets.ps1      # Offset update script (supports local/DMA mode)
+│   └── update-offsets.bat      # Batch entry point
+├── external/                   # External tools
+│   ├── dumper/                 # cs2-dumper (Rust, for obtaining offsets)
+│   └── webradar/               # cs2_webradar frontend (React)
+├── docs/                       # Documentation
+│   ├── webradar-setup.md       # Web Radar deployment guide
+│   ├── edit-history.md         # Development changelog
+│   └── LICENSE                 # MIT License
+└── dma.slnx                    # Visual Studio solution
 ```
 
 ---
 
-## 构建指南
+## Build Guide
 
-### 环境要求
+### Requirements
 
-| 依赖 | 版本 |
-|------|------|
-| Visual Studio | 2026 Community 或更高版本 |
-| C++ 标准 | C++17 |
-| 平台 | x64 |
+| Dependency | Version |
+|------------|---------|
+| Visual Studio | 2026 Community or later |
+| C++ Standard | C++17 |
+| Platform | x64 |
 | Windows SDK | 10.0+ |
 
-### 运行时依赖
+### Runtime Dependencies
 
-以下 DLL 需与编译产物 `cs2.exe` 放在同一目录：
+The following DLLs must be in the same directory as `cs2.exe`:
 
-| 文件 | 说明 |
-|------|------|
-| `vmm.dll` | MemProcFS 核心库 |
-| `leechcore.dll` | LeechCore 设备通信层 |
-| `FTD3XX.dll` | FTDI USB3 驱动（FPGA 设备需要） |
+| File | Description |
+|------|-------------|
+| `vmm.dll` | MemProcFS core library |
+| `leechcore.dll` | LeechCore device communication layer |
+| `FTD3XX.dll` | FTDI USB3 driver (required for FPGA devices) |
 
-> 这些 DLL 来自 [MemProcFS](https://github.com/ufrisk/MemProcFS) 发布包，项目仓库中已包含。
+> These DLLs come from the [MemProcFS](https://github.com/ufrisk/MemProcFS) release package and are included in the repository.
 
-### 编译步骤
+### Build Steps
 
 ```powershell
-# 1. 克隆仓库
-git clone <仓库地址>
+# 1. Clone the repository
+git clone https://github.com/kuchaomc/CS2-DMA.git
 cd CS2-DMA
 
-# 2. 使用 Visual Studio 打开 dma.slnx，或命令行编译：
+# 2. Open dma.slnx in Visual Studio, or build from command line:
 & "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" `
     "dma.slnx" /p:Configuration=Release /p:Platform=x64 /t:Rebuild /m
 
-# 编译产物：cs2.exe
+# Build output: cs2.exe
 ```
 
-### 偏移量更新
+### Updating Offsets
 
-游戏更新后偏移量会失效，需要重新获取：
+After game updates, offsets become invalid and need to be re-obtained:
 
 ```powershell
-# 方式一：在运行 CS2 的机器上（本地模式）
+# Method 1: On the machine running CS2 (local mode)
 .\tools\update-offsets.ps1
 
-# 方式二：通过 DMA 硬件
+# Method 2: Via DMA hardware
 .\tools\update-offsets.ps1 -Connector pcileech -ConnectorArgs ":device=FPGA"
 ```
 
-脚本会自动调用 `external/dumper/` 中的 cs2-dumper，将结果写入 `data/offsets.json` 和 `data/client_dll.json`。
+The script calls cs2-dumper from `external/dumper/` and writes results to `data/offsets.json` and `data/client_dll.json`.
 
-> 偏移量是版本相关的静态值，游戏更新后获取一次即可，无需每次启动都运行。
+> Offsets are version-specific static values. You only need to dump them once after each game update.
 
 ---
 
-## 使用说明
+## Usage
 
-### 启动流程
+### Startup Flow
 
-1. 确保 `vmm.dll`、`leechcore.dll`、`FTD3XX.dll` 与 `cs2.exe` 在同一目录
-2. 确保 `data/offsets.json` 和 `data/client_dll.json` 对应当前游戏版本
-3. 连接 FPGA 设备，在**副机**上运行 `cs2.exe`
-4. 程序自动初始化 DMA → 搜索 cs2.exe 进程 → 开始渲染
+1. Ensure `vmm.dll`, `leechcore.dll`, `FTD3XX.dll` are in the same directory as `cs2.exe`
+2. Ensure `data/offsets.json` and `data/client_dll.json` match the current game version
+3. Connect the FPGA device and run `cs2.exe` on the **secondary machine**
+4. The program automatically initializes DMA → searches for cs2.exe → starts rendering
 
-### 热键
+### Hotkeys
 
-| 按键 | 功能 |
-|------|------|
-| `F8` | 显示 / 隐藏菜单 |
-| `F5`（默认，可自定义） | 录制投掷物点位 |
+| Key | Function |
+|-----|----------|
+| `F8` | Show / Hide menu |
+| `F5` (default, customizable) | Record grenade position |
 
-> 所有按键通过 DMA 读取目标机器的键盘状态，但目前本功能不完善,需在副机键盘上操作。
+> All keys are read via DMA from the target machine's keyboard state, but this feature is currently incomplete — keys need to be pressed on the secondary machine's keyboard.
 
-### 配置文件
+### Config File
 
-全局设置存储在程序运行目录，使用 JSON 格式：
+Global settings are stored in the program directory in JSON format:
 
 ```json
 {
     "type": "none",
-    "en": "ch"
+    "en": "en"
 }
 ```
 
-| 字段 | 可选值 | 说明 |
-|------|--------|------|
-| `en` | `en` / `ch` | 界面语言（English / 中文） |
-| `type` | `none` / `net` / `net+` / `b` | 外设类型（无 / KmBox Net / 加密 Net / BPro） |
+| Field | Values | Description |
+|-------|--------|-------------|
+| `en` | `en` / `ch` | UI language (English / Chinese) |
+| `type` | `none` / `net` / `net+` / `b` | Peripheral type (None / KmBox Net / Encrypted Net / BPro) |
 
-功能配置保存在 `saved/configs/` 目录，支持通过菜单创建多套配置。
+Feature configs are saved in `saved/configs/`, with support for multiple profiles via the menu.
 
 ---
 
-## 开发指南
+## Developer Guide
 
-### 架构概览
+### Architecture Overview
 
-程序采用**多线程 + 快照**架构：
+The program uses a **multi-threaded + snapshot** architecture:
 
 ```
 ┌─────────────────────┐
-│    ConnectionThread  │  游戏进程生命周期管理（状态机）
+│    ConnectionThread  │  Game process lifecycle management (state machine)
 ├─────────────────────┤
-│    DataThread        │  核心数据管线：矩阵 → 本地玩家 → 实体 → Scatter 读取
+│    DataThread        │  Core data pipeline: matrix → local player → entities → scatter read
 ├─────────────────────┤
-│    SlowUpdateThread  │  低频更新：实体列表基址、地图名
+│    SlowUpdateThread  │  Low-frequency: entity list base address, map name
 ├─────────────────────┤
-│    KeysCheckThread   │  键盘状态轮询（DMA 读取内核键盘状态）
+│    KeysCheckThread   │  Keyboard state polling (DMA reads kernel key state)
 ├─────────────────────┤
-│    WebRadarThread    │  WebSocket 广播 GameSnapshot → JSON
+│    WebRadarThread    │  WebSocket broadcast: GameSnapshot → JSON
 ├─────────────────────┤
-│    主线程 (Render)    │  ImGui 窗口 + ESP 渲染（只读 Snapshot）
+│    Main Thread       │  ImGui window + ESP rendering (read-only Snapshot)
 └─────────────────────┘
 ```
 
-**数据流**：`DataThread` 通过 DMA 读取游戏数据，写入 `Cheats::Snapshot`（`shared_mutex` 保护），渲染线程和 WebRadar 线程以只读方式访问快照。
+**Data flow**: `DataThread` reads game data via DMA and writes to `Cheats::Snapshot` (protected by `shared_mutex`). The render thread and WebRadar thread access the snapshot in read-only mode.
 
-### 关键设计决策
+### Key Design Decisions
 
-- **按需读取**：`DataThread` 根据 `MenuConfig` 中当前启用的功能，动态决定 Scatter 请求的字段集合。未启用任何功能时整个管线休眠。
-- **实体缓存**：控制器数据（名称、队伍等）不是每帧都重新读取，而是以 `DISCOVERY_INTERVAL`（5帧）和 `CONTROLLER_REFRESH`（50帧）两个频率分层更新，大幅减少 DMA 读取次数。
-- **Scatter 批量读取**：所有实体的动态字段（位置、血量、骨骼等）合并到一个 Scatter 批次中，一次 DMA 操作完成。
-- **Snapshot 快照模式**：写线程持有 `unique_lock` 仅在交换数据时短暂加锁，读线程用 `shared_lock`，渲染帧率不受数据线程阻塞。
-- **日志环形缓冲区**：最近 64 条日志保存在固定大小的环形缓冲区中，崩溃时 CrashHandler 可直接 dump，无需访问文件系统。
+- **On-demand reading**: `DataThread` dynamically determines which scatter fields to request based on currently enabled features in `MenuConfig`. The entire pipeline sleeps when no features are enabled.
+- **Entity caching**: Controller data (names, team, etc.) is not re-read every frame. Instead, it uses tiered update frequencies: `DISCOVERY_INTERVAL` (5 frames) and `CONTROLLER_REFRESH` (50 frames), significantly reducing DMA read count.
+- **Scatter batch reading**: All dynamic entity fields (position, health, bones, etc.) are combined into a single scatter batch — one DMA operation.
+- **Snapshot mode**: The writer holds `unique_lock` only briefly during data swap; readers use `shared_lock`, so render FPS is not blocked by the data thread.
+- **Log ring buffer**: The last 64 log entries are stored in a fixed-size ring buffer. On crash, CrashHandler can dump them directly without filesystem access.
 
-### 代码规范
+### Code Conventions
 
-- **命名**：类名 `PascalCase`，函数名 `PascalCase`，变量名 `camelCase`，宏/常量 `UPPER_SNAKE_CASE`
-- **头文件**：使用 `#pragma once`
-- **内存读取**：统一通过 `ProcessMgr`（`ProcessManager` 单例）进行，禁止直接调用 VMMDLL API
-- **配置项**：新增功能的配置项添加到 `MenuConfig.h`（inline 全局变量），UI 控件添加到 `GUI.cpp`
-- **日志**：使用 `LOG_INFO`、`LOG_ERROR` 等宏，格式为 `LOG_INFO("ModuleName", "message {}", value)`
-- **线程安全**：共享数据通过 `Cheats::SnapshotMutex` 保护，不要在渲染线程中直接读取 DMA
+- **Naming**: Classes `PascalCase`, functions `PascalCase`, variables `camelCase`, macros/constants `UPPER_SNAKE_CASE`
+- **Headers**: Use `#pragma once`
+- **Memory reads**: Always through `ProcessMgr` (`ProcessManager` singleton); never call VMMDLL APIs directly
+- **Config items**: Add to `MenuConfig.h` (inline globals), UI controls in `GUI.cpp`
+- **Logging**: Use `LOG_INFO`, `LOG_ERROR`, etc. — format: `LOG_INFO("ModuleName", "message {}", value)`
+- **Thread safety**: Shared data protected via `Cheats::SnapshotMutex`; never read DMA directly from the render thread
 
-### 添加新功能的流程
+### Adding a New Feature
 
-1. **在 `MenuConfig.h` 添加配置项**（如 `inline bool ShowNewFeature = false;`）
-2. **在 `GUI.cpp` 添加菜单控件**（对应 Tab 下添加 Checkbox / Slider 等）
-3. **在 `ConfigSaver.cpp` 添加序列化**（SaveConfig / LoadConfig 中追加字段）
-4. **在 `Language.h` 添加多语言字符串**
-5. **如需额外数据**：在 `DataThread`（`Threads.cpp`）的 Scatter 请求中添加字段，更新 `GameSnapshot` 结构体
-6. **在 `Cheats.cpp` 或 `Render.cpp` 中实现渲染逻辑**
-7. **测试**：确保关闭该功能时不产生额外 DMA 读取（按需读取原则）
+1. **Add config item in `MenuConfig.h`** (e.g. `inline bool ShowNewFeature = false;`)
+2. **Add UI control in `GUI.cpp`** (Checkbox / Slider under the appropriate tab)
+3. **Add serialization in `ConfigSaver.cpp`** (SaveConfig / LoadConfig)
+4. **Add multi-language string in `Language.h`**
+5. **If additional data is needed**: Add scatter fields in `DataThread` (`Threads.cpp`) and update the `GameSnapshot` struct
+6. **Implement render logic in `Cheats.cpp` or `Render.cpp`**
+7. **Test**: Ensure no extra DMA reads occur when the feature is disabled (on-demand reading principle)
 
-### 偏移量体系
+### Offset System
 
-偏移量从 JSON 文件动态加载（`Offsets.cpp` → `Offset::UpdateOffsets()`），而非硬编码。JSON 由 [cs2-dumper](https://github.com/a2x/cs2-dumper) 生成。添加新偏移量时：
+Offsets are dynamically loaded from JSON files (`Offsets.cpp` → `Offset::UpdateOffsets()`), not hardcoded. JSON files are generated by [cs2-dumper](https://github.com/a2x/cs2-dumper). To add a new offset:
 
-1. 在 `Offsets.h` 中声明 `inline DWORD NewOffset;`
-2. 在 `Offsets.cpp` 的 `UpdateOffsets()` 中添加 JSON 解析逻辑
-3. 在 `Entity.cpp` 或其他模块中使用 `Offset::NewOffset`
-
----
-
-## 已知问题与注意事项
-
-- **偏移量时效性**：每次 CS2 更新后偏移量可能失效，需使用 `tools/update-offsets.ps1` 重新获取
-- **Windows 键盘状态**：Win11 不同版本的 `gafAsyncKeyState` 内核偏移不同，程序内置了 PDB 解析 + 硬编码偏移两套策略，极端情况下可能需要手动更新偏移表
-- **FPGA 兼容性**：仅测试过常见 FPGA DMA 设备，其他设备可能需要调整 `InitDMA()` 的参数
-- **反作弊**：本项目为学习和研究目的，使用者需自行承担风险
+1. Declare `inline DWORD NewOffset;` in `Offsets.h`
+2. Add JSON parsing logic in `Offsets.cpp` `UpdateOffsets()`
+3. Use `Offset::NewOffset` in `Entity.cpp` or other modules
 
 ---
 
-## 致谢
+## Known Issues
 
-- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — 初始代码基础
-- [MemProcFS](https://github.com/ufrisk/MemProcFS) — DMA 内存访问框架
-- [cs2-dumper](https://github.com/a2x/cs2-dumper) — 偏移量自动化工具
-- [cs2_webradar](https://github.com/clauadv/cs2_webradar) — Web Radar 前端
-- [Dear ImGui](https://github.com/ocornut/imgui) — GUI 框架
+- **Offset expiry**: Offsets may become invalid after each CS2 update — use `tools/update-offsets.ps1` to re-obtain
+- **Windows keyboard state**: Different Win11 versions have different `gafAsyncKeyState` kernel offsets. The program includes both PDB resolution and hardcoded offset strategies; in rare cases, manual offset table updates may be needed
+- **FPGA compatibility**: Only tested with common FPGA DMA devices; other devices may require adjustments to `InitDMA()` parameters
+- **Anti-cheat**: This project is for educational and research purposes. Use at your own risk
 
-## 许可证
+---
 
-本项目基于 [MIT License](docs/LICENSE) 发布。
+## Credits
+
+- [CS2_DMA_Extrnal](https://github.com/Mzzzj/CS2_DMA_Extrnal) — Initial codebase
+- [MemProcFS](https://github.com/ufrisk/MemProcFS) — DMA memory access framework
+- [cs2-dumper](https://github.com/a2x/cs2-dumper) — Automated offset dumper
+- [cs2_webradar](https://github.com/clauadv/cs2_webradar) — Web Radar frontend
+- [Dear ImGui](https://github.com/ocornut/imgui) — GUI framework
+
+## License
+
+This project is licensed under the [MIT License](docs/LICENSE).
