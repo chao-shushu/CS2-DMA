@@ -362,6 +362,7 @@ static void DrawTab_Settings() {
 		ImGui::Spacing();
 		if (ImGui::Button(lang.utilities_help.c_str(), ImVec2(160, 28))) {
 			ShellExecuteA(nullptr, "open", "https://github.com/chao-shushu/CS2-DMA", nullptr, nullptr, SW_SHOWNORMAL);
+			TerminateProcess(GetCurrentProcess(), 0);
 		}
 
 		ImGui::Spacing();

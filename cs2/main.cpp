@@ -19,7 +19,9 @@ typedef long NTSTATUS;
 #include <filesystem>
 #include <windows.h>
 #include <timeapi.h>
+#include <winhttp.h>
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "winhttp.lib")
 
 
 namespace fs = std::filesystem;
@@ -30,6 +32,44 @@ std::string readFile(const std::string& path) {
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	return buffer.str();
+}
+
+static std::string downloadUrl(const wchar_t* host, const wchar_t* path) {
+	std::string result;
+	HINTERNET hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+	if (!hSession) return result;
+
+	HINTERNET hConnect = WinHttpConnect(hSession, host, INTERNET_DEFAULT_HTTPS_PORT, 0);
+	if (!hConnect) { WinHttpCloseHandle(hSession); return result; }
+
+	HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", path, NULL,
+		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+	if (!hRequest) { WinHttpCloseHandle(hConnect); WinHttpCloseHandle(hSession); return result; }
+
+	DWORD timeout = 5000;
+	WinHttpSetOption(hRequest, WINHTTP_OPTION_CONNECT_TIMEOUT, &timeout, sizeof(timeout));
+	WinHttpSetOption(hRequest, WINHTTP_OPTION_RECEIVE_TIMEOUT, &timeout, sizeof(timeout));
+
+	if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
+		WinHttpReceiveResponse(hRequest, NULL)) {
+		DWORD statusCode = 0, size = sizeof(statusCode);
+		WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+			NULL, &statusCode, &size, NULL);
+		if (statusCode == 200) {
+			char buffer[4096];
+			DWORD bytesRead = 0;
+			while (WinHttpReadData(hRequest, buffer, sizeof(buffer), &bytesRead) && bytesRead > 0) {
+				result.append(buffer, bytesRead);
+				bytesRead = 0;
+			}
+		}
+	}
+
+	WinHttpCloseHandle(hRequest);
+	WinHttpCloseHandle(hConnect);
+	WinHttpCloseHandle(hSession);
+	return result;
 }
 
 
@@ -50,6 +90,33 @@ void main(HMODULE module) {
 
 	std::string offsets = readFile("data/offsets.json");
 	std::string client = readFile("data/client_dll.json");
+
+	LOG_INFO("Config", "Checking offsets against GitHub repository...");
+	std::string remoteOffsets = downloadUrl(L"raw.githubusercontent.com", L"/chao-shushu/CS2-DMA/main/data/offsets.json");
+	std::string remoteClient = downloadUrl(L"raw.githubusercontent.com", L"/chao-shushu/CS2-DMA/main/data/client_dll.json");
+
+	if (!remoteOffsets.empty() && !remoteClient.empty()) {
+		if (offsets != remoteOffsets || client != remoteClient) {
+			std::cout << "\n========================================" << std::endl;
+			std::cout << "\xc6\xab\xd2\xc6\xd6\xb5\xd0\xa3\xd1\xe9\xce\xb4\xcd\xa8\xb9\xfd\xa3\xac\xc7\xeb\xc8\xb7\xc8\xcf\xca\xc7\xb7\xf1\xca\xc7\xd7\xee\xd0\xc2\xc6\xab\xd2\xc6\xd6\xb5\xa3\xbf" << std::endl;
+			std::cout << "Offset verification failed. Are you using the latest offsets?" << std::endl;
+			std::cout << "GitHub: https://github.com/chao-shushu/CS2-DMA/tree/main/data" << std::endl;
+			std::cout << "========================================\n" << std::endl;
+			std::cout << "\xbc\xcc\xd0\xf8\xca\xb9\xd3\xc3\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5? / Continue with local offsets? (y/n): ";
+			char choice = 'n';
+			std::cin >> choice;
+			if (choice != 'y' && choice != 'Y') {
+				LOG_INFO("Config", "User declined to use local offsets, exiting");
+				return;
+			}
+			LOG_INFO("Config", "User confirmed to use local offsets");
+		} else {
+			LOG_INFO("Config", "Local offsets match GitHub repository");
+		}
+	} else {
+		LOG_WARNING("Config", "Could not fetch remote offsets, skipping validation");
+	}
+
 	Offset::UpdateOffsets(offsets, client);
 	LOG_INFO("Config", "Offsets updated");
 
