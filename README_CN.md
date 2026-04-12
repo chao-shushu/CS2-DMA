@@ -305,17 +305,17 @@ cd CS2-DMA
 
 ```
 ┌─────────────────────┐
-│    ConnectionThread  │  游戏进程生命周期管理（状态机）
+│    ConnectionThread │  游戏进程生命周期管理（状态机）
 ├─────────────────────┤
-│    DataThread        │  核心数据管线：矩阵 → 本地玩家 → 实体 → Scatter 读取
+│    DataThread       │  核心数据管线：矩阵 → 本地玩家 → 实体 → Scatter 读取
 ├─────────────────────┤
-│    SlowUpdateThread  │  低频更新：实体列表基址、地图名
+│    SlowUpdateThread │  低频更新：实体列表基址、地图名
 ├─────────────────────┤
-│    KeysCheckThread   │  键盘状态轮询（DMA 读取内核键盘状态）
+│    KeysCheckThread  │  键盘状态轮询（DMA 读取内核键盘状态）
 ├─────────────────────┤
-│    WebRadarThread    │  WebSocket 广播 GameSnapshot → JSON
+│    WebRadarThread   │  WebSocket 广播 GameSnapshot → JSON
 ├─────────────────────┤
-│    主线程 (Render)    │  ImGui 窗口 + ESP 渲染（只读 Snapshot）
+│    主线程 (Render)   │  ImGui 窗口 + ESP 渲染（只读 Snapshot）
 └─────────────────────┘
 ```
 
