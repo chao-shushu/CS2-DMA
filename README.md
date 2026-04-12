@@ -62,6 +62,8 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 
 ### Other
 - **Config System** — Create / save / load / delete multiple configs, auto-loads `_autosave.config` on startup
+- **Offset Validation** — Compares local offsets against GitHub repository at startup; prompts user if mismatch detected
+- **Help Button** — Quick link to project GitHub page from the Settings menu
 - **Multi-language** — Chinese / English toggle
 - **Logging System** — Leveled logging (TRACE → FATAL) with ring buffer for crash diagnostics
 - **Crash Handler** — SEH + `std::terminate` capture, auto-generates `.log` + `.dmp` with recent logs, feature state, and system info
@@ -121,7 +123,7 @@ After each CS2 update, game offsets may become invalid, causing ESP to not displ
 2. Replace the corresponding files in the `data/` directory
 3. Restart the program
 
-> If you're building from source, you can also use the `tools/update-offsets.ps1` script to update automatically.
+> If you're building from source, you can also use `tools/update-offsets.bat` to update automatically (supports local and DMA modes).
 
 ---
 
@@ -193,13 +195,11 @@ CS2-DMA/
 ├── saved/                      # User config storage
 ├── logs/                       # Logs and crash dumps
 ├── tools/                      # Automation scripts
-│   ├── update-offsets.ps1      # Offset update script (supports local/DMA mode)
-│   └── update-offsets.bat      # Batch entry point
+│   └── update-offsets.bat      # Offset update tool (supports local/DMA mode)
 ├── external/                   # External tools
 │   ├── dumper/                 # cs2-dumper (Rust, for obtaining offsets)
 │   └── webradar/               # cs2_webradar frontend (React)
 ├── docs/                       # Documentation
-│   ├── webradar-setup.md       # Web Radar deployment guide
 │   ├── edit-history.md         # Development changelog
 │   └── LICENSE                 # MIT License
 └── dma.slnx                    # Visual Studio solution
@@ -248,15 +248,13 @@ cd CS2-DMA
 
 After game updates, offsets become invalid and need to be re-obtained:
 
-```powershell
-# Method 1: On the machine running CS2 (local mode)
-.\tools\update-offsets.ps1
-
-# Method 2: Via DMA hardware
-.\tools\update-offsets.ps1 -Connector pcileech -ConnectorArgs ":device=FPGA"
+```bat
+# Run tools/update-offsets.bat and select mode from the menu:
+#   1. Native Mode — run on the same machine as CS2 (requires admin)
+#   2. DMA Mode — use FPGA hardware to read memory
 ```
 
-The script calls cs2-dumper from `external/dumper/` and writes results to `data/offsets.json` and `data/client_dll.json`.
+The tool calls cs2-dumper from `external/dumper/` and writes results to `data/offsets.json` and `data/client_dll.json`.
 
 > Offsets are version-specific static values. You only need to dump them once after each game update.
 
@@ -363,7 +361,7 @@ Offsets are dynamically loaded from JSON files (`Offsets.cpp` → `Offset::Updat
 
 ## Known Issues
 
-- **Offset expiry**: Offsets may become invalid after each CS2 update — use `tools/update-offsets.ps1` to re-obtain
+- **Offset expiry**: Offsets may become invalid after each CS2 update — use `tools/update-offsets.bat` to re-obtain
 - **Windows keyboard state**: Different Win11 versions have different `gafAsyncKeyState` kernel offsets. The program includes both PDB resolution and hardcoded offset strategies; in rare cases, manual offset table updates may be needed
 - **FPGA compatibility**: Only tested with common FPGA DMA (75T reinforced firmware) devices; other devices may require adjustments to `InitDMA()` parameters
 - **Anti-cheat**: Although read-only DMA is harder to detect, please note this project is for learning and research purposes only, not for profit! Use at your own risk!!!
