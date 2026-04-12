@@ -284,7 +284,6 @@ Global settings are stored in the program directory in JSON format:
 
 ```json
 {
-    "type": "none",
     "en": "en"
 }
 ```
@@ -292,7 +291,6 @@ Global settings are stored in the program directory in JSON format:
 | Field | Values | Description |
 |-------|--------|-------------|
 | `en` | `en` / `ch` | UI language (English / Chinese) |
-| `type` | `none` / `net` / `net+` / `b` | Peripheral type (None / KmBox Net / Encrypted Net / BPro) |
 
 Feature configs are saved in `saved/configs/`, with support for multiple profiles via the menu.
 

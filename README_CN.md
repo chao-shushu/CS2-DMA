@@ -283,7 +283,6 @@ cd CS2-DMA
 
 ```json
 {
-    "type": "none",
     "en": "ch"
 }
 ```
@@ -291,7 +290,6 @@ cd CS2-DMA
 | 字段 | 可选值 | 说明 |
 |------|--------|------|
 | `en` | `en` / `ch` | 界面语言（English / 中文） |
-| `type` | `none` / `net` / `net+` / `b` | 外设类型（无 / KmBox Net / 加密 Net / BPro） |
 
 功能配置保存在 `saved/configs/` 目录，支持通过菜单创建多套配置。
 
