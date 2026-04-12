@@ -306,17 +306,17 @@ The program uses a **multi-threaded + snapshot** architecture:
 
 ```
 ┌─────────────────────┐
-│    ConnectionThread  │  Game process lifecycle management (state machine)
+│    ConnectionThread │  Game process lifecycle management (state machine)
 ├─────────────────────┤
-│    DataThread        │  Core data pipeline: matrix → local player → entities → scatter read
+│    DataThread       │  Core data pipeline: matrix → local player → entities → scatter read
 ├─────────────────────┤
-│    SlowUpdateThread  │  Low-frequency: entity list base address, map name
+│    SlowUpdateThread │  Low-frequency: entity list base address, map name
 ├─────────────────────┤
-│    KeysCheckThread   │  Keyboard state polling (DMA reads kernel key state)
+│    KeysCheckThread  │  Keyboard state polling (DMA reads kernel key state)
 ├─────────────────────┤
-│    WebRadarThread    │  WebSocket broadcast: GameSnapshot → JSON
+│    WebRadarThread   │  WebSocket broadcast: GameSnapshot → JSON
 ├─────────────────────┤
-│    Main Thread       │  ImGui window + ESP rendering (read-only Snapshot)
+│    Main Thread      │  ImGui window + ESP rendering (read-only Snapshot)
 └─────────────────────┘
 ```
 
