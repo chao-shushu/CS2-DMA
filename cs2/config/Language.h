@@ -28,6 +28,7 @@ public:
 	std::string utilities_closehack;
 	std::string utilities_reloadhack;
 	std::string utilities_language;
+	std::string utilities_help;
 
 	std::string config_newconfig;
 	std::string config_create;
@@ -204,6 +205,7 @@ public:
 		this->utilities_closehack = "Close Software";
 		this->utilities_reloadhack = "Reload game";
 		this->utilities_language = "Select Language";
+		this->utilities_help = "Help";
 
 		this->config_newconfig = "Config Name";
 		this->config_create = "Create config";
@@ -362,6 +364,7 @@ public:
 		this->utilities_closehack = u8"\u5173\u95ed\u8f6f\u4ef6";
 		this->utilities_language = u8"\u9009\u62e9\u8bed\u8a00";
 		this->utilities_reloadhack = u8"\u91cd\u65b0\u83b7\u53d6\u6570\u636e";
+		this->utilities_help = u8"\u5e2e\u52a9";
 
 		this->config_newconfig = u8"\u914d\u7f6e\u540d\u79f0";
 		this->config_create = u8"\u521b\u5efa\u914d\u7f6e";

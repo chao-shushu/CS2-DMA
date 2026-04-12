@@ -3,6 +3,7 @@
 #include "GrenadeHelper.h"
 #include "../config/ConfigMenu.h"
 #include "../config/ConfigSaver.h"
+#include <shellapi.h>
 
 // ============================================================================
 // Color Scheme: Dark Purple-Blue Accent
@@ -356,6 +357,11 @@ static void DrawTab_Settings() {
 			ProcessMgr.Detach();
 			globalVars::gameState.store(AppState::SEARCHING_GAME);
 			buffer2 = false;
+		}
+
+		ImGui::Spacing();
+		if (ImGui::Button(lang.utilities_help.c_str(), ImVec2(160, 28))) {
+			ShellExecuteA(nullptr, "open", "https://github.com/chao-shushu/CS2-DMA", nullptr, nullptr, SW_SHOWNORMAL);
 		}
 
 		ImGui::Spacing();
@@ -733,7 +739,9 @@ void Cheats::Menu()
 		ImGui::SetCursorPos(ImVec2(12, 8));
 		ImGui::TextColored(ImVec4(0.608f, 0.490f, 1.00f, 1.0f), "CS2 / DMA");
 		ImGui::SameLine(globalVars::windowx - 220);
-		ImGui::TextColored(ImVec4(0.4f, 0.4f, 0.5f, 1.0f), "by 枯潮");
+		ImGui::TextColored(ImVec4(0.4f, 0.4f, 0.5f, 1.0f), "by github");
+		ImGui::SameLine(0, 4);
+		ImGui::TextColored(ImVec4(0.608f, 0.490f, 1.00f, 1.0f), "chao-shushu");
 
 		ImGui::SetCursorPosY(28);
 		ImGui::Separator();
