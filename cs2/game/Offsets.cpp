@@ -42,6 +42,10 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 		Offset::PlantedC4 = SafeGetUint64(clientDll, "dwPlantedC4");
 		Offset::WeaponC4 = SafeGetUint64(clientDll, "dwWeaponC4");
 		Offset::HighestEntityIndex = SafeGetUint64(clientDll, "dwGameEntitySystem_highestEntityIndex");
+		LOG_DEBUG("Offsets", "client.dll: EntityList=0x{:X} Matrix=0x{:X} LocalCtrl=0x{:X} LocalPawn=0x{:X} GlobalVars=0x{:X} PlantedC4=0x{:X} WeaponC4=0x{:X}",
+			Offset::EntityList, Offset::Matrix, Offset::LocalPlayerController, Offset::LocalPlayerPawn, Offset::GlobalVars, Offset::PlantedC4, Offset::WeaponC4);
+	} else {
+		LOG_DEBUG("Offsets", "client.dll section NOT FOUND in offsets.json");
 	}
 
 	// Parse offsets.json - matchmaking.dll (optional)
@@ -64,6 +68,8 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::GameSceneNode = SafeGetUint64(fields, "m_pGameSceneNode");
 			Offset::fFlags = SafeGetUint64(fields, "m_fFlags");
 			Offset::OwnerEntity = SafeGetUint64(fields, "m_hOwnerEntity");
+			LOG_DEBUG("Offsets", "C_BaseEntity: Health=0x{:X} TeamID=0x{:X} GameSceneNode=0x{:X} fFlags=0x{:X}",
+				Offset::Health, Offset::TeamID, Offset::GameSceneNode, Offset::fFlags);
 		}
 
 		// CCSPlayerController
@@ -74,6 +80,8 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::MoneyService = SafeGetUint64(fields, "m_pInGameMoneyServices");
 			Offset::PlayerPawn = SafeGetUint64(fields, "m_hPlayerPawn");
 			Offset::CompTeammateColor = SafeGetUint64(fields, "m_iCompTeammateColor");
+			LOG_DEBUG("Offsets", "CCSPlayerController: Armor=0x{:X} IsAlive=0x{:X} PlayerPawn=0x{:X} MoneyService=0x{:X}",
+				Offset::Armor, Offset::IsAlive, Offset::PlayerPawn, Offset::MoneyService);
 		}
 
 		// CBasePlayerController
@@ -107,6 +115,8 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::aimPunchAngle = SafeGetUint64(fields, "m_aimPunchAngle");
 			Offset::aimPunchCache = SafeGetUint64(fields, "m_aimPunchCache");
 			Offset::iIDEntIndex = SafeGetUint64(fields, "m_iIDEntIndex");
+			LOG_DEBUG("Offsets", "C_CSPlayerPawn: EyeAngles=0x{:X} CameraPos=0x{:X} ClipWeapon=0x{:X}",
+				Offset::angEyeAngles, Offset::vecLastClipCameraPos, Offset::pClippingWeapon);
 
 			// Calculate bSpottedByMask
 			uint64_t m_entitySpottedState = SafeGetUint64(fields, "m_entitySpottedState");
@@ -129,6 +139,7 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			uint64_t modelState = SafeGetUint64(fields, "m_modelState");
 			Offset::BoneArray = modelState + 0x80;
 			Offset::ModelStateOffset = (DWORD)modelState;
+			LOG_DEBUG("Offsets", "CSkeletonInstance: modelState=0x{:X} BoneArray=0x{:X}", modelState, Offset::BoneArray);
 		}
 
 		// CGameSceneNode
@@ -196,5 +207,9 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 	}
 
 	LOG_INFO("Config", "Successfully loaded offsets");
+	LOG_DEBUG("Offsets", "Bomb: Ticking=0x{:X} C4Blow=0x{:X} Defused=0x{:X} BeingDefused=0x{:X} DefuseCD=0x{:X}",
+		Offset::BombTicking, Offset::C4Blow, Offset::BombDefused, Offset::BeingDefused, Offset::DefuseCountDown);
+	LOG_DEBUG("Offsets", "Grenade: EntityIdentity=0x{:X} DesignerName=0x{:X}",
+		Offset::EntityIdentity, Offset::DesignerName);
 	return true;
 }

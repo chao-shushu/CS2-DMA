@@ -118,6 +118,9 @@ namespace MenuConfig
 	inline bool  ShowProjectileRange = true;
 	inline float ProjectileRangeAlpha = 0.12f;
 
+	// ======== Debug Log ========
+	inline bool  DebugLog = false;
+
 	// ======== Safe Zone (Crosshair Cutout) ========
 	inline bool  SafeZoneEnabled = false;
 	inline float SafeZoneRadius = 100.f;

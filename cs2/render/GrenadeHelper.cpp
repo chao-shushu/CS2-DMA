@@ -210,11 +210,13 @@ namespace GrenadeHelper
             return;
         }
 
+        LOG_DEBUG("GrenadeHelper", "Scanning grenade data dir: {}", absPath.string());
         for (const auto& entry : fs::directory_iterator(absPath))
         {
             if (entry.path().extension() == ".json")
             {
                 std::string mapName = entry.path().stem().string();
+                LOG_TRACE("GrenadeHelper", "Loading file: {}", entry.path().string());
                 
                 try
                 {
@@ -269,6 +271,8 @@ namespace GrenadeHelper
                         
                         mapData.Throws.push_back(t);
                         throwCount++;
+                        LOG_TRACE("GrenadeHelper", "  throw[{}]: '{}' type={} style={} pos=({:.1f},{:.1f},{:.1f})",
+                            throwCount - 1, t.Name, t.Type, t.Style, t.Position.x, t.Position.y, t.Position.z);
                         
                         pos = objEnd + 1;
                     }
@@ -295,6 +299,7 @@ namespace GrenadeHelper
         }
         
         CurrentMap = mapName;
+        LOG_DEBUG("GrenadeHelper", "UpdateMap: raw='{}'", mapName);
         
         std::string cleanMapName = mapName;
         
@@ -382,6 +387,8 @@ namespace GrenadeHelper
         PendingThrows.push_back(pt);
         LOG_INFO("GrenadeHelper", "Recorded: {} at ({}, {}, {}) Angle: ({}, {})",
                  pt.Name, pt.Position.x, pt.Position.y, pt.Position.z, pt.Pitch, pt.Yaw);
+        LOG_DEBUG("GrenadeHelper", "Record detail: weapon='{}' detectedType={} defaultType={} style={} counter={}",
+                 LocalPlayer.Pawn.WeaponName, detectedType, DefaultGrenadeType, DefaultThrowStyle, ThrowCounter);
 
         // Set save flag for auto-save (will be handled in render loop)
         if (AutoSave && !CurrentMap.empty()) {
@@ -457,6 +464,8 @@ namespace GrenadeHelper
                 namedCount++;
             }
         }
+
+        LOG_DEBUG("GrenadeHelper", "SaveToFile: path='{}' existing={} pending={}", absPath.string(), throwsToSave.size() - namedCount, namedCount);
 
         // Write to file
         std::ofstream outFile(absPath);

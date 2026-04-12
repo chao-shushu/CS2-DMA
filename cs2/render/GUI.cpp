@@ -3,6 +3,7 @@
 #include "GrenadeHelper.h"
 #include "../config/ConfigMenu.h"
 #include "../config/ConfigSaver.h"
+#include "../utils/Logger.h"
 #include <shellapi.h>
 
 // ============================================================================
@@ -352,6 +353,15 @@ static void DrawTab_Settings() {
 	}
 
 	if (ImGui::CollapsingHeader(lang.header_system.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		{
+			bool prev = MenuConfig::DebugLog;
+			Gui.MyCheckBox(lang.settings_debuglog.c_str(), &MenuConfig::DebugLog);
+			if (MenuConfig::DebugLog != prev)
+				Logger::SetDebugMode(MenuConfig::DebugLog);
+		}
+		if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_debuglog_tip.c_str());
+
+		ImGui::Spacing();
 		static bool buffer2 = false;
 		if (ImGui::Checkbox(lang.utilities_reloadhack.c_str(), &buffer2)) {
 			ProcessMgr.Detach();

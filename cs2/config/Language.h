@@ -115,6 +115,10 @@ public:
 	std::string safezone_shape;
 	const char* safezone_shapeselect[2];
 
+	// Debug
+	std::string settings_debuglog;
+	std::string settings_debuglog_tip;
+
 	// Settings
 	std::string settings_vsync;
 	std::string settings_maxfps;
@@ -287,6 +291,9 @@ public:
 		this->safezone_shape = "Shape";
 		this->safezone_shapeselect[0] = "Circle"; this->safezone_shapeselect[1] = "Square";
 
+		this->settings_debuglog = "Debug Log";
+		this->settings_debuglog_tip = "Enable verbose TRACE/DEBUG logging for troubleshooting (impacts performance)";
+
 		this->settings_vsync = "VSync";
 		this->settings_maxfps = "Max FPS";
 		this->settings_unlimited = "Unlimited";
@@ -445,6 +452,9 @@ public:
 		this->safezone_radius = u8"\u534a\u5f84";
 		this->safezone_shape = u8"\u5f62\u72b6";
 		this->safezone_shapeselect[0] = u8"\u5706\u5f62"; this->safezone_shapeselect[1] = u8"\u65b9\u5f62";
+
+		this->settings_debuglog = u8"\u8c03\u8bd5\u65e5\u5fd7";
+		this->settings_debuglog_tip = u8"\u542f\u7528\u8be6\u7ec6\u7684 TRACE/DEBUG \u65e5\u5fd7\u8f93\u51fa\u7528\u4e8e\u95ee\u9898\u5b9a\u4f4d\uff08\u5f71\u54cd\u6027\u80fd\uff09";
 
 		this->settings_vsync = u8"\u5782\u76f4\u540c\u6b65";
 		this->settings_maxfps = u8"\u6700\u5927\u5e27\u7387";

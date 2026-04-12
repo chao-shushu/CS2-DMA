@@ -29,6 +29,19 @@ Logger::~Logger()
 }
 
 // =====================================================================
+//  Debug mode
+// =====================================================================
+void Logger::SetDebugMode(bool enabled)
+{
+    s_DebugMode.store(enabled, std::memory_order_relaxed);
+}
+
+bool Logger::IsDebugMode()
+{
+    return s_DebugMode.load(std::memory_order_relaxed);
+}
+
+// =====================================================================
 //  Lifecycle
 // =====================================================================
 void Logger::Init(const std::string& logDir)

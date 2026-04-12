@@ -4,15 +4,17 @@
 #include <sstream>
 #include "ConfigSaver.h"
 #include "../game/MenuConfig.h"
+#include "../utils/Logger.h"
 
 namespace MyConfigSaver {
 
     void SaveConfig(const std::string& filename) {
         std::ofstream configFile(MenuConfig::path+'/'+filename);
         if (!configFile.is_open()) {
-            std::cerr << "Error: Could not open the configuration file." << std::endl;
+            LOG_DEBUG("Config", "SaveConfig: failed to open '{}'", MenuConfig::path + '/' + filename);
             return;
         }
+        LOG_TRACE("Config", "SaveConfig: writing '{}'", filename);
        
         configFile << "ShowBoneESP " << MenuConfig::ShowBoneESP << std::endl;
         configFile << "ShowBoxESP " << MenuConfig::ShowBoxESP << std::endl;
@@ -59,6 +61,7 @@ namespace MyConfigSaver {
         configFile << "SafeZoneRadius " << MenuConfig::SafeZoneRadius << std::endl;
         configFile << "SafeZoneShape " << MenuConfig::SafeZoneShape << std::endl;
         configFile << "VSync " << MenuConfig::VSync << std::endl;
+        configFile << "DebugLog " << MenuConfig::DebugLog << std::endl;
         configFile << "SelectedLanguage " << MenuConfig::SelectedLanguage << std::endl;
         configFile << "ShowWebRadar " << MenuConfig::ShowWebRadar << std::endl;
         configFile << "WebRadarPort " << MenuConfig::WebRadarPort << std::endl;
@@ -77,8 +80,10 @@ namespace MyConfigSaver {
 
         std::ifstream configFile(MenuConfig::path + '/' + filename);
         if (!configFile.is_open()) {
+            LOG_DEBUG("Config", "LoadConfig: file not found '{}'", MenuConfig::path + '/' + filename);
             return;
         }
+        LOG_DEBUG("Config", "LoadConfig: reading '{}'", filename);
 
         std::string line;
         while (std::getline(configFile, line)) {
@@ -130,6 +135,7 @@ namespace MyConfigSaver {
                 else if (key == "SafeZoneRadius") iss >> MenuConfig::SafeZoneRadius;
                 else if (key == "SafeZoneShape") iss >> MenuConfig::SafeZoneShape;
                 else if (key == "VSync") iss >> MenuConfig::VSync;
+                else if (key == "DebugLog") iss >> MenuConfig::DebugLog;
                 else if (key == "SelectedLanguage") iss >> MenuConfig::SelectedLanguage;
                 else if (key == "ShowWebRadar") iss >> MenuConfig::ShowWebRadar;
                 else if (key == "WebRadarPort") iss >> MenuConfig::WebRadarPort;
@@ -143,5 +149,6 @@ namespace MyConfigSaver {
         }
 
         configFile.close();
+        LOG_DEBUG("Config", "LoadConfig: done, DebugLog={} ShowWebRadar={} Language={}", MenuConfig::DebugLog, MenuConfig::ShowWebRadar, MenuConfig::SelectedLanguage);
     }
 }

@@ -278,8 +278,12 @@ bool WebRadarServer::DoHandshake(SOCKET clientSock) {
 
 	std::string request(buf, received);
 
+	LOG_DEBUG("WebRadar", "Handshake: received {} bytes", received);
 	// Must be a WebSocket upgrade
-	if (request.find("Upgrade:") == std::string::npos) return false;
+	if (request.find("Upgrade:") == std::string::npos) {
+		LOG_DEBUG("WebRadar", "Handshake: not a WebSocket upgrade request");
+		return false;
+	}
 
 	// Extract Sec-WebSocket-Key
 	auto keyPos = request.find("Sec-WebSocket-Key:");
@@ -301,6 +305,7 @@ bool WebRadarServer::DoHandshake(SOCKET clientSock) {
 		"Sec-WebSocket-Accept: " + acceptB64 + "\r\n"
 		"\r\n";
 
+	LOG_DEBUG("WebRadar", "Handshake: sending 101 response ({} bytes)", response.size());
 	return send(clientSock, response.c_str(), (int)response.size(), 0) > 0;
 }
 
@@ -308,8 +313,8 @@ bool WebRadarServer::SendFrame(SOCKET sock, const std::string& payload) {
 	std::vector<uint8_t> frame;
 	frame.reserve(10 + payload.size());
 
-	// FIN=1, opcode=0x2 (binary) — browser receives as Blob, compatible with app.jsx .text()
-	frame.push_back(0x82);
+	// FIN=1, opcode=0x1 (text) — JSON payload, browser receives as string directly
+	frame.push_back(0x81);
 
 	size_t len = payload.size();
 	if (len < 126) {
@@ -338,8 +343,10 @@ bool WebRadarServer::SendFrame(SOCKET sock, const std::string& payload) {
 
 void WebRadarServer::Broadcast(const std::string& message) {
 	std::lock_guard<std::mutex> lock(m_clientsMutex);
+	LOG_TRACE("WebRadar", "Broadcast: {} bytes to {} clients", message.size(), m_clients.size());
 	for (auto it = m_clients.begin(); it != m_clients.end(); ) {
 		if (!SendFrame(*it, message)) {
+			LOG_DEBUG("WebRadar", "SendFrame failed, dropping client");
 			closesocket(*it);
 			it = m_clients.erase(it);
 		} else {
@@ -525,9 +532,9 @@ static void SerializePlayer(rapidjson::Value& players, const CEntity& e,
 	rapidjson::Value p(rapidjson::kObjectType);
 	p.AddMember("m_idx", idx, a);
 	p.AddMember("m_name", rapidjson::Value(e.Controller.PlayerName.c_str(), a), a);
-	// Color: -1 means unassigned, clamp to 0-4 range for frontend
+	// Color: -1 means unassigned, clamp to 0-5 range for frontend (6 colors)
 	int color = e.Controller.Color;
-	if (color < 0 || color > 4) color = idx % 5;
+	if (color < 0 || color > 5) color = idx % 6;
 	p.AddMember("m_color", color, a);
 	p.AddMember("m_team", e.Controller.TeamID, a);
 	p.AddMember("m_health", e.Pawn.Health, a);
@@ -667,6 +674,7 @@ VOID WebRadarThread() {
 			}
 
 			std::string json = SerializeSnapshot(snap);
+			LOG_TRACE("WebRadar", "Serialized: {} bytes, map='{}', entities={}", json.size(), CleanMapName(snap.MapName), snap.Entities.size());
 			server.Broadcast(json);
 
 			if (firstBroadcast) {

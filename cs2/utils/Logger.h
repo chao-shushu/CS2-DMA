@@ -46,6 +46,10 @@ public:
     void Init(const std::string& logDir = "logs");
     void Shutdown();
 
+    // Debug mode — controls whether TRACE/DEBUG level logs are emitted
+    static void SetDebugMode(bool enabled);
+    static bool IsDebugMode();
+
     // Core log function
     void Log(LogLevel level, const char* module, const char* message);
 
@@ -78,6 +82,8 @@ private:
     std::ofstream       m_File;
     std::string         m_FilePath;
     std::atomic<bool>   m_Initialized{ false };
+
+    static inline std::atomic<bool> s_DebugMode{ false };
 
     // Ring buffer
     RingEntry           m_Ring[RING_BUFFER_SIZE]{};
@@ -148,8 +154,8 @@ std::string LogFormat(const char* fmt, T&& first, Args&&... rest)
 // =====================================================================
 //  Macros — primary API
 // =====================================================================
-#define LOG_TRACE(module, fmt, ...)   Logger::Get().Log(LogLevel::TRACE,   module, (LogFormat(fmt, ##__VA_ARGS__)).c_str())
-#define LOG_DEBUG(module, fmt, ...)   Logger::Get().Log(LogLevel::DEBUG,   module, (LogFormat(fmt, ##__VA_ARGS__)).c_str())
+#define LOG_TRACE(module, fmt, ...)   do { if (Logger::IsDebugMode()) Logger::Get().Log(LogLevel::TRACE, module, (LogFormat(fmt, ##__VA_ARGS__)).c_str()); } while(0)
+#define LOG_DEBUG(module, fmt, ...)   do { if (Logger::IsDebugMode()) Logger::Get().Log(LogLevel::DEBUG, module, (LogFormat(fmt, ##__VA_ARGS__)).c_str()); } while(0)
 #define LOG_INFO(module, fmt, ...)    Logger::Get().Log(LogLevel::INFO,    module, (LogFormat(fmt, ##__VA_ARGS__)).c_str())
 #define LOG_WARNING(module, fmt, ...) Logger::Get().Log(LogLevel::WARNING, module, (LogFormat(fmt, ##__VA_ARGS__)).c_str())
 #define LOG_ERROR(module, fmt, ...)   Logger::Get().Log(LogLevel::ERR,     module, (LogFormat(fmt, ##__VA_ARGS__)).c_str())

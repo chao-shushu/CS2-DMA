@@ -70,6 +70,7 @@ void Cheats::Run()
 			std::shared_lock<std::shared_mutex> lock(Cheats::SnapshotMutex);
 			snap = Cheats::Snapshot;
 		}
+		LOG_TRACE("Render", "Snapshot: entities={} projs={} map='{}'", snap.Entities.size(), snap.Projectiles.size(), snap.MapName);
 
 		const auto& LocalPlayerSnapshot = snap.LocalPlayer;
 
@@ -78,8 +79,10 @@ void Cheats::Run()
 		// changes every game frame. Re-projecting here ensures ESP tracks view
 		// rotation at display refresh rate — eliminates stutter during mouse movement.
 		float freshMatrix[4][4];
-		if (!ProcessMgr.ReadMemory(gGame.GetMatrixAddress(), freshMatrix, 64))
+		if (!ProcessMgr.ReadMemory(gGame.GetMatrixAddress(), freshMatrix, 64)) {
+			LOG_TRACE("Render", "Fresh matrix read FAILED, using snapshot matrix");
 			memcpy(freshMatrix, snap.Matrix, sizeof(freshMatrix));
+		}
 
 		// Re-project all entities: world coords → screen coords with fresh matrix
 		for (auto& Entity : snap.Entities) {
@@ -230,6 +233,7 @@ void Cheats::Run()
 		// Grenade Helper - Update map and render
 		static std::string lastMapName;
 		if (snap.MapName[0] != '\0' && snap.MapName != lastMapName) {
+			LOG_DEBUG("Render", "Map changed: '{}' -> '{}'", lastMapName, snap.MapName);
 			GrenadeHelper::UpdateMap(snap.MapName);
 			lastMapName = snap.MapName;
 		}

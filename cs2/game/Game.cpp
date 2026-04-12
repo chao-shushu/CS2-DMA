@@ -8,6 +8,7 @@ bool CGame::InitAddress()
 	LOG_INFO("Game", "InitAddress: client.dll = 0x{:X}", this->Address.ClientDLL);
 
 	this->Address.MatchDLL = GetProcessModuleHandle(ProcessMgr.HANDLE, ProcessMgr.ProcessID, "matchmaking.dll");
+	LOG_DEBUG("Game", "InitAddress: matchmaking.dll = 0x{:X}", this->Address.MatchDLL);
 
 	this->Address.EntityList = GetClientDLLAddress() + Offset::EntityList;
 	this->Address.Matrix = GetClientDLLAddress() + Offset::Matrix;
@@ -15,6 +16,9 @@ bool CGame::InitAddress()
 
 	this->Address.LocalPawn = GetClientDLLAddress() + Offset::LocalPlayerPawn;
 	this->Address.GlobalVars = GetClientDLLAddress() + Offset::GlobalVars;
+
+	LOG_DEBUG("Game", "Addresses: EntityList=0x{:X} Matrix=0x{:X} LocalCtrl=0x{:X} LocalPawn=0x{:X} GlobalVars=0x{:X}",
+		this->Address.EntityList, this->Address.Matrix, this->Address.LocalController, this->Address.LocalPawn, this->Address.GlobalVars);
 
 	LOG_INFO("Game", "InitAddress: done (ClientDLL=0x{:X})", this->Address.ClientDLL);
 	return this->Address.ClientDLL != 0;
@@ -63,12 +67,17 @@ DWORD64 CGame::GetGlobalVarsAddress()
 bool CGame::UpdateEntityListEntry()
 {
 	DWORD64 EntityListEntry = 0;
-	if (!ProcessMgr.ReadMemory<DWORD64>(gGame.GetEntityListAddress(), EntityListEntry))
+	if (!ProcessMgr.ReadMemory<DWORD64>(gGame.GetEntityListAddress(), EntityListEntry)) {
+		LOG_TRACE("Game", "UpdateEntityListEntry: read EntityList FAILED");
 		return false;
-	if (!ProcessMgr.ReadMemory<DWORD64>(EntityListEntry + 0x10, EntityListEntry))
+	}
+	if (!ProcessMgr.ReadMemory<DWORD64>(EntityListEntry + 0x10, EntityListEntry)) {
+		LOG_TRACE("Game", "UpdateEntityListEntry: read sub-entry FAILED");
 		return false;
+	}
 
 	this->Address.EntityListEntry = EntityListEntry;
+	LOG_TRACE("Game", "UpdateEntityListEntry: 0x{:X}", EntityListEntry);
 
 	return this->Address.EntityListEntry != 0;
 }
@@ -99,6 +108,7 @@ DWORD64 GetProcessModuleHandle(VMM_HANDLE HANDLE, DWORD ProcessID, std::string M
 			LOG_INFO("Memory", "GetProcessModuleHandle: '{}' resolved at 0x{:X} (attempt {})", ModuleName, module_entry->vaBase, attempt + 1);
 			return module_entry->vaBase;
 		}
+		LOG_DEBUG("Memory", "GetProcessModuleHandle: '{}' attempt {} failed", ModuleName, attempt + 1);
 
 	}
 
@@ -143,13 +153,16 @@ DWORD64 GetProcessModuleHandle(VMM_HANDLE HANDLE, DWORD ProcessID, std::string M
 		}
 	}
 
+	LOG_DEBUG("Memory", "DTB: {} candidate DTBs to try", possible_dtbs.size());
 	for (size_t i = 0; i < possible_dtbs.size(); i++)
 	{
 		auto dtb = possible_dtbs[i];
+		LOG_TRACE("Memory", "DTB: trying 0x{:X} ({}/{})", dtb, i + 1, possible_dtbs.size());
 		VMMDLL_ConfigSet(HANDLE, VMMDLL_OPT_PROCESS_DTB, dtb);
 		bool found = VMMDLL_Map_GetModuleFromNameU(HANDLE, ProcessID, (LPSTR)ModuleName.c_str(), &module_entry, NULL);
 		if (found)
 		{
+			LOG_INFO("Memory", "DTB: '{}' found with DTB 0x{:X} at 0x{:X}", ModuleName, dtb, module_entry->vaBase);
 			return module_entry->vaBase;
 		}
 	}

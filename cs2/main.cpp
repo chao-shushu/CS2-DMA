@@ -128,7 +128,8 @@ void main(HMODULE module) {
 	MyConfigSaver::LoadConfig("_autosave.config");
 	if (MenuConfig::SelectedLanguage == 0) lang.english();
 	else lang.chineese();
-	LOG_INFO("Config", "Auto-loaded settings from _autosave.config");
+	Logger::SetDebugMode(MenuConfig::DebugLog);
+	LOG_INFO("Config", "Auto-loaded settings from _autosave.config (debug_log: {})", MenuConfig::DebugLog);
 
 	GrenadeHelper::LoadMapData("data/grenade-helper");
 	LOG_INFO("DMA", "Grenade helper loaded");

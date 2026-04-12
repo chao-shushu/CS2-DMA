@@ -34,7 +34,9 @@ VOID ConnectionThread()
 		case AppState::SEARCHING_GAME:
 		{
 			searchAttempts++;
+			LOG_TRACE("Connection", "Attach attempt #{}", searchAttempts);
 			StatusCode status = ProcessMgr.Attach("cs2.exe");
+			LOG_TRACE("Connection", "Attach returned {}", (int)status);
 			if (status == SUCCEED) {
 				LOG_INFO("Connection", "Found cs2.exe (PID: {}) after {} attempts", ProcessMgr.ProcessID, searchAttempts);
 				searchAttempts = 0;
@@ -46,6 +48,7 @@ VOID ConnectionThread()
 		}
 		case AppState::INITIALIZING_GAME:
 		{
+			LOG_DEBUG("Connection", "Initializing game addresses...");
 			if (gGame.InitAddress()) {
 				LOG_INFO("Connection", "Game addresses initialized");
 				globalVars::gameState.store(AppState::RUNNING);
@@ -59,6 +62,7 @@ VOID ConnectionThread()
 		}
 		case AppState::RUNNING:
 		{
+			LOG_TRACE("Connection", "Checking process alive...");
 			if (!ProcessMgr.IsProcessAlive()) {
 				LOG_WARNING("Connection", "Game process lost, searching again...");
 				ProcessMgr.Detach();
@@ -162,7 +166,10 @@ VOID DataThread()
 			bool needEntityPipeline = anyESPDraw || MenuConfig::ShowWebRadar;
 			bool anyFeature = needEntityPipeline || MenuConfig::ShowProjectileESP;
 
+			LOG_TRACE("Data", "frame={} anyESP={} entityPipe={} anyFeat={}", frameCounter, anyESPDraw, needEntityPipeline, anyFeature);
+
 			if (!anyFeature) {
+				LOG_TRACE("Data", "No features enabled, sleeping");
 				Sleep(50);
 				std::unique_lock<std::shared_mutex> lock(Cheats::SnapshotMutex);
 				Cheats::Snapshot.Entities.clear();
@@ -176,27 +183,38 @@ VOID DataThread()
 			bool needWeapon = MenuConfig::ShowWeaponESP || MenuConfig::ShowWebRadar;
 
 			// ------- 1. Read matrix -------
-			if (!ProcessMgr.ReadMemory(gGame.GetMatrixAddress(), matrix, 64))
+			if (!ProcessMgr.ReadMemory(gGame.GetMatrixAddress(), matrix, 64)) {
+				LOG_TRACE("Data", "ReadMemory matrix FAILED (addr=0x{:X})", gGame.GetMatrixAddress());
 				continue;
+			}
 			memcpy(gGame.View.Matrix, matrix, 64);
 
 			// ------- 2. Read local player addresses -------
 			DWORD64 localControllerAddr = 0;
 			DWORD64 localPawnAddr = 0;
-			if (!ProcessMgr.ReadMemory(gGame.GetLocalControllerAddress(), localControllerAddr))
+			if (!ProcessMgr.ReadMemory(gGame.GetLocalControllerAddress(), localControllerAddr)) {
+				LOG_TRACE("Data", "ReadMemory localController FAILED");
 				continue;
-			if (!ProcessMgr.ReadMemory(gGame.GetLocalPawnAddress(), localPawnAddr))
+			}
+			if (!ProcessMgr.ReadMemory(gGame.GetLocalPawnAddress(), localPawnAddr)) {
+				LOG_TRACE("Data", "ReadMemory localPawn FAILED");
 				continue;
+			}
+
+			LOG_TRACE("Data", "Local: ctrl=0x{:X} pawn=0x{:X}", localControllerAddr, localPawnAddr);
 
 			// Local player: full controller read only on address change or periodic refresh
 			bool localChanged = (localPawnAddr != localPawnAddrCached);
 			if (localChanged || frameCounter % CONTROLLER_REFRESH == 0) {
+				LOG_TRACE("Data", "Local player refresh (changed={}, periodic={})", localChanged, frameCounter % CONTROLLER_REFRESH == 0);
 				CEntity newLocal;
 				if (!newLocal.UpdateController(localControllerAddr)) {
+					LOG_DEBUG("Data", "Local UpdateController FAILED (addr=0x{:X})", localControllerAddr);
 					localPawnAddrCached = localPawnAddr; // prevent infinite retry
 					continue;
 				}
 				if (localPawnAddr == 0 || !newLocal.InitPawnAddress(localPawnAddr)) {
+					LOG_DEBUG("Data", "Local pawn invalid (addr=0x{:X}), marking dead", localPawnAddr);
 					// Player dead or pawn invalid — mark health 0, keep processing
 					localPlayer.Pawn.Health = 0;
 					localPawnAddrCached = localPawnAddr;
@@ -220,8 +238,12 @@ VOID DataThread()
 			bool isDiscoveryFrame = (frameCounter % DISCOVERY_INTERVAL == 0) || entityCache.empty();
 
 			if (isDiscoveryFrame) {
+				LOG_TRACE("Data", "--- Discovery frame (cache_size={}) ---", entityCache.size());
 				DWORD64 listEntry = gGame.GetEntityListEntry();
-				if (listEntry == 0) continue;
+				if (listEntry == 0) {
+					LOG_TRACE("Data", "EntityListEntry is null, skipping");
+					continue;
+				}
 
 				// Scatter-read entity addresses at once
 				DWORD64 entityAddresses[MAX_ENTITIES]{};
@@ -424,6 +446,7 @@ VOID DataThread()
 					}
 				}
 
+				LOG_DEBUG("Data", "Discovery done: cache={} refresh={}", (int)newCache.size(), refreshCount);
 				entityCache = std::move(newCache);
 			}
 
@@ -508,6 +531,7 @@ VOID DataThread()
 				// ------- 5. Apply scatter results (world coords only) -------
 				// W2S moved to render thread: each render frame reads a fresh ViewMatrix
 				// so ESP tracks view rotation at display refresh rate, not DMA update rate.
+				LOG_TRACE("Data", "Applying scatter results for {} entities", count);
 				for (int i = 0; i < count; i++)
 				{
 					auto& ce = entityCache[i];
@@ -979,6 +1003,7 @@ VOID DataThread()
 			static std::vector<GrenadeProjectile> projectileCache;
 			static std::set<DWORD64> expiredEntities;
 			if (MenuConfig::ShowProjectileESP) {
+				LOG_TRACE("Data", "Projectile ESP scan (cache={})", projectileCache.size());
 				static int projCounter = 0;
 				if (++projCounter >= 10) { // ~20ms at 2ms cycle
 					projCounter = 0;
@@ -1232,6 +1257,7 @@ VOID DataThread()
 					publishEntities.push_back(ce.entity);
 				}
 
+				LOG_TRACE("Data", "Publishing snapshot: entities={} projs={} localHP={}", publishEntities.size(), projectileCache.size(), localPlayer.Pawn.Health);
 				std::unique_lock<std::shared_mutex> lock(Cheats::SnapshotMutex);
 				memcpy(Cheats::Snapshot.Matrix, matrix, sizeof(matrix));
 				Cheats::Snapshot.LocalPlayer = localPlayer;
@@ -1259,6 +1285,7 @@ VOID SlowUpdateThread()
 				Sleep(1000);
 				continue;
 			}
+			LOG_TRACE("SlowUpdate", "Updating entity list entry...");
 			gGame.UpdateEntityListEntry();
 
 			uintptr_t mapaddress = 0;
@@ -1277,6 +1304,7 @@ VOID SlowUpdateThread()
 			char tempMap[32]{};
 			ProcessMgr.ReadMemory(mapaddress2, tempMap, 32);
 
+			LOG_DEBUG("SlowUpdate", "Map name: '{}' (addr=0x{:X})", tempMap, mapaddress2);
 			{
 				std::unique_lock<std::shared_mutex> lock(Cheats::SnapshotMutex);
 				memcpy(Cheats::Snapshot.MapName, tempMap, sizeof(tempMap));
