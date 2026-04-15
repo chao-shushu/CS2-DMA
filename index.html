@@ -22,14 +22,14 @@
             --border:#1e1e1e;--border-h:#2a2a2a;
             --r:12px;--rl:20px;
         }
-        html{scroll-behavior:smooth}
-        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+        html{scroll-behavior:smooth;overflow-x:hidden}
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;max-width:100vw;-webkit-font-smoothing:antialiased}
         ::selection{background:rgba(0,255,157,.2);color:#fff}
         a{color:inherit;text-decoration:none}
         .container{max-width:1200px;margin:0 auto;padding:0 2rem}
 
         /* ── GRID BG ── */
-        .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+        .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;max-width:100vw;overflow:hidden;
             background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
             background-size:60px 60px;
             mask-image:radial-gradient(ellipse 80% 50% at 50% 0%,#000 30%,transparent 100%);
@@ -47,13 +47,14 @@
         .nav-mid a:hover{color:var(--text)}
         .nav-mid a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent);border-radius:1px;transition:width .25s}
         .nav-mid a:hover::after{width:100%}
-        .nav-right{display:flex;align-items:center;gap:.75rem}
+        .nav-right{display:flex;align-items:center;gap:.75rem;flex-shrink:0}
         .btn-author{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:8px;font-size:.78rem;font-weight:600;
             background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border);cursor:pointer;transition:all .25s;text-decoration:none}
         .btn-author:hover{background:rgba(255,255,255,.1);border-color:var(--border-h);color:var(--accent);transform:translateY(-1px)}
         .btn-lang{padding:.4rem .75rem;border-radius:6px;font-size:.78rem;font-weight:500;background:var(--bg-card);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .2s}
         .btn-lang:hover{border-color:var(--border-h);color:var(--text)}
         .mob-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:.25rem}
+        .mob-lang-top{display:none}
 
         /* ── HERO ── */
         .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 5rem;overflow:hidden}
@@ -190,6 +191,10 @@
             .nav-mid.open{display:flex}
             .mob-toggle{display:block}
             .btn-author{display:none}
+            #langBtn{display:none}
+            .mob-lang-top{display:inline-flex}
+            .nav-right{order:3}
+            .mob-toggle{order:2;margin-left:auto}
             .hero{padding:7rem 1.25rem 3.5rem}
             .hero-title{letter-spacing:-1.5px}
             .hero-desc{font-size:.92rem;padding:0 .25rem}
@@ -252,6 +257,7 @@
             <span data-i18n="nav_author">Author</span>
         </a>
         <button class="btn-lang" id="langBtn" onclick="toggleLang()">中文</button>
+        <button class="btn-lang mob-lang-top" onclick="toggleLang()">中文</button>
     </div>
 </nav>
 
@@ -661,7 +667,18 @@
         }
     };
 
-    let lang = 'en';
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    let lang = (urlLang === 'zh' || urlLang === 'en') ? urlLang : 'en';
+    if (lang === 'zh') {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const k = el.getAttribute('data-i18n');
+            if (T.zh[k]) el.innerHTML = T.zh[k];
+        });
+        document.documentElement.lang = 'zh-CN';
+    }
+    document.getElementById('langBtn').textContent = lang === 'en' ? '\u4e2d\u6587' : 'English';
+    document.querySelectorAll('.mob-lang-top').forEach(b => b.textContent = lang === 'en' ? '\u4e2d\u6587' : 'English');
+
     window.toggleLang = function() {
         lang = lang === 'en' ? 'zh' : 'en';
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -669,7 +686,11 @@
             if (T[lang][k]) el.innerHTML = T[lang][k];
         });
         document.getElementById('langBtn').textContent = lang === 'en' ? '\u4e2d\u6587' : 'English';
+        document.querySelectorAll('.mob-lang-top').forEach(b => b.textContent = lang === 'en' ? '\u4e2d\u6587' : 'English');
         document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+        const u = new URL(location);
+        u.searchParams.set('lang', lang);
+        history.replaceState(null, '', u);
     };
 })();
 </script>
