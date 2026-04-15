@@ -115,8 +115,9 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::aimPunchAngle = SafeGetUint64(fields, "m_aimPunchAngle");
 			Offset::aimPunchCache = SafeGetUint64(fields, "m_aimPunchCache");
 			Offset::iIDEntIndex = SafeGetUint64(fields, "m_iIDEntIndex");
-			LOG_DEBUG("Offsets", "C_CSPlayerPawn: EyeAngles=0x{:X} CameraPos=0x{:X} ClipWeapon=0x{:X}",
-				Offset::angEyeAngles, Offset::vecLastClipCameraPos, Offset::pClippingWeapon);
+			Offset::PawnArmor = SafeGetUint64(fields, "m_ArmorValue");
+			LOG_DEBUG("Offsets", "C_CSPlayerPawn: EyeAngles=0x{:X} CameraPos=0x{:X} ClipWeapon=0x{:X} PawnArmor=0x{:X}",
+				Offset::angEyeAngles, Offset::vecLastClipCameraPos, Offset::pClippingWeapon, Offset::PawnArmor);
 
 			// Calculate bSpottedByMask
 			uint64_t m_entitySpottedState = SafeGetUint64(fields, "m_entitySpottedState");

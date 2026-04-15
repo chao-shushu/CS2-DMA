@@ -539,7 +539,7 @@ static void SerializePlayer(rapidjson::Value& players, const CEntity& e,
 	p.AddMember("m_team", e.Controller.TeamID, a);
 	p.AddMember("m_health", e.Pawn.Health, a);
 	p.AddMember("m_is_dead", isDead, a);
-	p.AddMember("m_armor", e.Controller.Armor, a);
+	p.AddMember("m_armor", e.Pawn.Armor, a);
 	p.AddMember("m_money", e.Controller.Money, a);
 
 	rapidjson::Value pos(rapidjson::kObjectType);

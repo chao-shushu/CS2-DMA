@@ -342,16 +342,6 @@ static void DrawTab_Settings() {
 		}
 	}
 
-	if (ImGui::CollapsingHeader(lang.header_safezone.c_str())) {
-		Gui.MyCheckBox(lang.safezone_enable.c_str(), &MenuConfig::SafeZoneEnabled);
-		if (MenuConfig::SafeZoneEnabled) {
-			ImGui::SetNextItemWidth(180);
-			ImGui::SliderFloat(lang.safezone_radius.c_str(), &MenuConfig::SafeZoneRadius, 1.f, 300.f, "%.0f px");
-			ImGui::SetNextItemWidth(120);
-			ImGui::Combo(lang.safezone_shape.c_str(), &MenuConfig::SafeZoneShape, lang.safezone_shapeselect, IM_ARRAYSIZE(lang.safezone_shapeselect));
-		}
-	}
-
 	if (ImGui::CollapsingHeader(lang.header_system.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		{
 			bool prev = MenuConfig::DebugLog;
@@ -383,6 +373,46 @@ static void DrawTab_Settings() {
 			TerminateProcess(GetCurrentProcess(), 0);
 		}
 		ImGui::PopStyleColor(3);
+	}
+}
+
+// ============================================================================
+// Tab 5: Fusion Optimizer (融合器优化)
+// ============================================================================
+static void DrawTab_Fusion() {
+	// ---- Crosshair Overlay ----
+	if (ImGui::CollapsingHeader(lang.header_crosshair.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		Gui.MyCheckBox(lang.crosshair_enable.c_str(), &MenuConfig::CrosshairEnabled);
+		if (MenuConfig::CrosshairEnabled) {
+			ImGui::SetNextItemWidth(150);
+			ImGui::Combo(lang.crosshair_style.c_str(), &MenuConfig::CrosshairStyle, lang.crosshair_styleselect, IM_ARRAYSIZE(lang.crosshair_styleselect));
+
+			ImGui::SetNextItemWidth(150);
+			ImGui::SliderFloat(lang.crosshair_size.c_str(), &MenuConfig::CrosshairSize, 1.f, 30.f, "%.0f px");
+			ImGui::SetNextItemWidth(150);
+			ImGui::SliderFloat(lang.crosshair_thickness.c_str(), &MenuConfig::CrosshairThickness, 0.5f, 5.f, "%.1f");
+			ImGui::SetNextItemWidth(150);
+			ImGui::SliderFloat(lang.crosshair_gap.c_str(), &MenuConfig::CrosshairGap, 0.f, 20.f, "%.0f px");
+
+			ImGui::ColorEdit4(lang.crosshair_color.c_str(), reinterpret_cast<float*>(&MenuConfig::CrosshairColor), ImGuiColorEditFlags_NoInputs);
+
+			Gui.MyCheckBox(lang.crosshair_onenemycolor.c_str(), &MenuConfig::CrosshairOnEnemyColor);
+			if (MenuConfig::CrosshairOnEnemyColor) {
+				ImGui::SameLine(0, 16);
+				ImGui::ColorEdit4(lang.crosshair_enemycolor.c_str(), reinterpret_cast<float*>(&MenuConfig::CrosshairEnemyColor), ImGuiColorEditFlags_NoInputs);
+			}
+		}
+	}
+
+	// ---- Safe Zone ----
+	if (ImGui::CollapsingHeader(lang.header_safezone.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		Gui.MyCheckBox(lang.safezone_enable.c_str(), &MenuConfig::SafeZoneEnabled);
+		if (MenuConfig::SafeZoneEnabled) {
+			ImGui::SetNextItemWidth(180);
+			ImGui::SliderFloat(lang.safezone_radius.c_str(), &MenuConfig::SafeZoneRadius, 1.f, 300.f, "%.0f px");
+			ImGui::SetNextItemWidth(120);
+			ImGui::Combo(lang.safezone_shape.c_str(), &MenuConfig::SafeZoneShape, lang.safezone_shapeselect, IM_ARRAYSIZE(lang.safezone_shapeselect));
+		}
 	}
 }
 
@@ -777,11 +807,23 @@ void Cheats::Menu()
 			if (NavButton(lang.tab_config.c_str(), active_tab == 3, btnW)) active_tab = 3;
 			ImGui::Spacing();
 			if (NavButton(lang.tab_grenade.c_str(), active_tab == 4, btnW)) active_tab = 4;
+			ImGui::Spacing();
+			if (NavButton(lang.tab_fusion.c_str(), active_tab == 5, btnW)) active_tab = 5;
 
-			// Language selector at bottom
+			// Star reminder + Language selector at bottom
 			float remainHeight = ImGui::GetContentRegionAvail().y;
-			if (remainHeight > 40) {
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + remainHeight - 36);
+			if (remainHeight > 60) {
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + remainHeight - 56);
+			}
+			ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.0f, 1.0f), "\xe2\x98\x85");
+			ImGui::SameLine(0, 4);
+			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.6f, 0.9f), "Star on GitHub");
+			if (ImGui::IsItemHovered()) {
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				ImGui::SetTooltip("https://github.com/chao-shushu/CS2-DMA");
+			}
+			if (ImGui::IsItemClicked()) {
+				ShellExecuteA(nullptr, "open", "https://github.com/chao-shushu/CS2-DMA", nullptr, nullptr, SW_SHOWNORMAL);
 			}
 			ImGui::Separator();
 			ImGui::SetNextItemWidth(btnW);
@@ -812,6 +854,7 @@ void Cheats::Menu()
 			case 2: DrawTab_Settings(); break;
 			case 3: DrawTab_Config(); break;
 			case 4: DrawTab_Grenade(); break;
+			case 5: DrawTab_Fusion(); break;
 			default: break;
 			}
 		}

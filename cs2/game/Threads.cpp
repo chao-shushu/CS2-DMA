@@ -131,6 +131,7 @@ VOID DataThread()
 		BoneJointData bones[CBone::NUM_BONES]{};
 		Vec3 pos;
 		int health;
+		int armor;
 		Vec2 viewAngle;
 		Vec3 cameraPos;
 	};
@@ -475,6 +476,7 @@ VOID DataThread()
 							DWORD64 pawn = ce.pawnAddr;
 							ProcessMgr.AddScatterReadRequest(handle, pawn + Offset::Pos, &buf.pos, sizeof(Vec3));
 							ProcessMgr.AddScatterReadRequest(handle, pawn + Offset::CurrentHealth, &buf.health, sizeof(int));
+							ProcessMgr.AddScatterReadRequest(handle, pawn + Offset::PawnArmor, &buf.armor, sizeof(int));
 							if (needBones && ce.sceneNodeAddr != 0)
 								ProcessMgr.AddScatterReadRequest(handle, ce.sceneNodeAddr + Offset::BoneArray, &freshBoneArrays[i], sizeof(DWORD64));
 							if (needViewAngle)
@@ -493,6 +495,7 @@ VOID DataThread()
 							DWORD64 lp = localPlayer.Pawn.Address;
 							ProcessMgr.AddScatterReadRequest(handle, lp + Offset::Pos, &localBuf.pos, sizeof(Vec3));
 							ProcessMgr.AddScatterReadRequest(handle, lp + Offset::CurrentHealth, &localBuf.health, sizeof(int));
+							ProcessMgr.AddScatterReadRequest(handle, lp + Offset::PawnArmor, &localBuf.armor, sizeof(int));
 							if (needViewAngle)
 								ProcessMgr.AddScatterReadRequest(handle, lp + Offset::angEyeAngles, &localBuf.viewAngle, sizeof(Vec2));
 							ProcessMgr.ExecuteReadScatter(handle);
@@ -543,6 +546,7 @@ VOID DataThread()
 					} else {
 						ce.entity.Pawn.Pos = buf.pos;
 						ce.entity.Pawn.Health = buf.health;
+						ce.entity.Pawn.Armor = (buf.armor >= 0 && buf.armor <= 100) ? buf.armor : 0;
 						ce.entity.Pawn.ScreenPosValid = true; // render thread will refine via W2S
 
 						if (needViewAngle)
@@ -568,6 +572,7 @@ VOID DataThread()
 				if (IsValidPos(localBuf.pos)) {
 					localPlayer.Pawn.Pos = localBuf.pos;
 					localPlayer.Pawn.Health = localBuf.health;
+					localPlayer.Pawn.Armor = (localBuf.armor >= 0 && localBuf.armor <= 100) ? localBuf.armor : 0;
 					if (needViewAngle)
 						localPlayer.Pawn.ViewAngle = localBuf.viewAngle;
 				}

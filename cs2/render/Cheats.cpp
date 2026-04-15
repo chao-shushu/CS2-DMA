@@ -194,7 +194,7 @@ void Cheats::Run()
 			}
 
 			if (MenuConfig::ShowArmorBar)
-				Render::DrawArmorBar(Entity.Controller.Armor, Rect, MenuConfig::ArmorBarColor, MenuConfig::ArmorBarWidth, MenuConfig::ArmorBarType);
+				Render::DrawArmorBar(Entity.Pawn.Armor, Rect, MenuConfig::ArmorBarColor, MenuConfig::ArmorBarWidth, MenuConfig::ArmorBarType);
 
 			if (MenuConfig::ShowWeaponESP)
 				Gui.StrokeText(Entity.Pawn.WeaponName, Vec2(Rect.x, Rect.y + Rect.w), MenuConfig::WeaponColor, MenuConfig::WeaponFontSize);
@@ -218,6 +218,59 @@ void Cheats::Run()
 		// Grenade Projectile ESP
 		if (MenuConfig::ShowProjectileESP && !snap.Projectiles.empty())
 			Render::DrawProjectileESP(snap.Projectiles, freshMatrix, LocalPlayerSnapshot.Pawn.Pos);
+
+		// Crosshair overlay: drawn on top of ESP, below safe zone mask
+		if (MenuConfig::CrosshairEnabled) {
+			ImVec2 c = { ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f };
+			ImDrawList* dl = ImGui::GetBackgroundDrawList();
+
+			// Determine if crosshair is on an enemy
+			bool onEnemy = false;
+			if (MenuConfig::CrosshairOnEnemyColor) {
+				for (const auto& Entity : EntityListSnapshot) {
+					if (Entity.Pawn.Health <= 0 || Entity.Pawn.Health > 100) continue;
+					if (MenuConfig::TeamCheck && Entity.Controller.TeamID == LocalPlayerSnapshot.Controller.TeamID) continue;
+					if (!Entity.Pawn.ScreenPosValid) continue;
+
+					ImVec4 eRect;
+					switch (MenuConfig::BoxType) {
+					case 1:  eRect = Render::Get2DBoneRect(Entity); break;
+					default: eRect = Render::Get2DBox(Entity); break;
+					}
+					if (eRect.z < 1.f || eRect.w < 1.f) continue;
+					if (c.x >= eRect.x && c.x <= eRect.x + eRect.z &&
+						c.y >= eRect.y && c.y <= eRect.y + eRect.w) {
+						onEnemy = true;
+						break;
+					}
+				}
+			}
+
+			ImU32 col = onEnemy
+				? ImGui::ColorConvertFloat4ToU32(MenuConfig::CrosshairEnemyColor.Value)
+				: ImGui::ColorConvertFloat4ToU32(MenuConfig::CrosshairColor.Value);
+			float sz = MenuConfig::CrosshairSize;
+			float th = MenuConfig::CrosshairThickness;
+			float gap = MenuConfig::CrosshairGap;
+
+			// Style 0: Cross, 1: Dot, 2: Circle, 3: Cross+Dot
+			bool drawCross = (MenuConfig::CrosshairStyle == 0 || MenuConfig::CrosshairStyle == 3);
+			bool drawDot   = (MenuConfig::CrosshairStyle == 1 || MenuConfig::CrosshairStyle == 3);
+			bool drawCircle = (MenuConfig::CrosshairStyle == 2);
+
+			if (drawCross) {
+				dl->AddLine({ c.x - gap - sz, c.y }, { c.x - gap, c.y }, col, th);
+				dl->AddLine({ c.x + gap, c.y }, { c.x + gap + sz, c.y }, col, th);
+				dl->AddLine({ c.x, c.y - gap - sz }, { c.x, c.y - gap }, col, th);
+				dl->AddLine({ c.x, c.y + gap }, { c.x, c.y + gap + sz }, col, th);
+			}
+			if (drawDot) {
+				dl->AddCircleFilled({ c.x, c.y }, th, col, 12);
+			}
+			if (drawCircle) {
+				dl->AddCircle({ c.x, c.y }, sz, col, 32, th);
+			}
+		}
 
 		// Safe zone black mask: drawn on top of all ESP to erase the crosshair area
 		if (MenuConfig::SafeZoneEnabled) {

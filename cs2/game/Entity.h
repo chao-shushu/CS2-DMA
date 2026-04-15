@@ -53,6 +53,7 @@ public:
 	Vec2 AimPunchAngle;
 	C_UTL_VECTOR AimPunchCache;
 	int Health;
+	int Armor = 0;
 	int TeamID;
 	int Fov;
 	DWORD64 bSpottedByMask;

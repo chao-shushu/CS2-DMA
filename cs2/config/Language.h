@@ -8,6 +8,7 @@ public:
 	std::string tab_settings;
 	std::string tab_config;
 	std::string tab_grenade;
+	std::string tab_fusion;
 
 	std::string visuals_showbox;
 	std::string visuals_boxcolor;
@@ -182,6 +183,18 @@ public:
 	std::string proj_range;
 	std::string proj_rangealpha;
 
+	// Crosshair Overlay
+	std::string header_crosshair;
+	std::string crosshair_enable;
+	std::string crosshair_size;
+	std::string crosshair_thickness;
+	std::string crosshair_gap;
+	std::string crosshair_style;
+	std::string crosshair_color;
+	std::string crosshair_onenemycolor;
+	std::string crosshair_enemycolor;
+	const char* crosshair_styleselect[4];
+
 	Language() { english(); }
 
 	void english() {
@@ -190,6 +203,7 @@ public:
 		this->tab_settings = "Settings";
 		this->tab_config = "Config";
 		this->tab_grenade = "Grenade";
+		this->tab_fusion = "Fusion";
 
 		this->visuals_showbox = "Show Box";
 		this->visuals_boxcolor = "Box Color";
@@ -339,6 +353,17 @@ public:
 		this->proj_range = "Show Effect Range";
 		this->proj_rangealpha = "Range Alpha";
 
+		this->header_crosshair = "Crosshair Overlay";
+		this->crosshair_enable = "Enable Crosshair";
+		this->crosshair_size = "Arm Length";
+		this->crosshair_thickness = "Thickness";
+		this->crosshair_gap = "Gap";
+		this->crosshair_style = "Style";
+		this->crosshair_color = "Color";
+		this->crosshair_onenemycolor = "Change Color on Enemy";
+		this->crosshair_enemycolor = "Enemy Color";
+		this->crosshair_styleselect[0] = "Cross"; this->crosshair_styleselect[1] = "Dot"; this->crosshair_styleselect[2] = "Circle"; this->crosshair_styleselect[3] = "Cross+Dot";
+
 		this->status_dma_init = "Initializing DMA...";
 		this->status_dma_failed = "DMA Connection Failed!";
 		this->status_searching = "Searching for cs2.exe...";
@@ -352,6 +377,7 @@ public:
 		this->tab_settings = u8"\u8bbe\u7f6e";
 		this->tab_config = u8"\u914d\u7f6e";
 		this->tab_grenade = u8"\u6295\u63b7\u7269";
+		this->tab_fusion = u8"\u878d\u5408\u5668\u4f18\u5316";
 
 		this->visuals_showbox = u8"\u663e\u793a\u900f\u89c6\u6846";
 		this->visuals_boxcolor = u8"\u6846\u989c\u8272";
@@ -500,6 +526,17 @@ public:
 		this->proj_enable = u8"\u663e\u793a\u6295\u63b7\u7269ESP";
 		this->proj_range = u8"\u663e\u793a\u751f\u6548\u8303\u56f4";
 		this->proj_rangealpha = u8"\u8303\u56f4\u900f\u660e\u5ea6";
+
+		this->header_crosshair = u8"\u51c6\u661f\u8986\u76d6\u5c42";
+		this->crosshair_enable = u8"\u542f\u7528\u51c6\u661f";
+		this->crosshair_size = u8"\u81c2\u957f";
+		this->crosshair_thickness = u8"\u7c97\u7ec6";
+		this->crosshair_gap = u8"\u95f4\u8ddd";
+		this->crosshair_style = u8"\u6837\u5f0f";
+		this->crosshair_color = u8"\u989c\u8272";
+		this->crosshair_onenemycolor = u8"\u7784\u51c6\u654c\u4eba\u53d8\u8272";
+		this->crosshair_enemycolor = u8"\u654c\u4eba\u989c\u8272";
+		this->crosshair_styleselect[0] = u8"\u5341\u5b57"; this->crosshair_styleselect[1] = u8"\u5706\u70b9"; this->crosshair_styleselect[2] = u8"\u5706\u5708"; this->crosshair_styleselect[3] = u8"\u5341\u5b57+\u5706\u70b9";
 
 		this->status_dma_init = u8"\u521d\u59cb\u5316DMA...";
 		this->status_dma_failed = u8"DMA\u8fde\u63a5\u5931\u8d25!";

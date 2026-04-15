@@ -26,6 +26,7 @@ namespace Offset
 	inline DWORD MaxHealth;
 	inline DWORD CurrentHealth;
 	inline DWORD Armor;
+	inline DWORD PawnArmor;  // C_CSPlayerPawn::m_ArmorValue (authoritative, on pawn)
 	inline DWORD GameSceneNode;
 	inline DWORD BoneArray;
 	inline DWORD MapName;

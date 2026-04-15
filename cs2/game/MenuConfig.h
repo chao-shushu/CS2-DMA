@@ -126,6 +126,16 @@ namespace MenuConfig
 	inline float SafeZoneRadius = 100.f;
 	inline int   SafeZoneShape = 0; // 0: Circle, 1: Square
 
+	// ======== Crosshair Overlay ========
+	inline bool    CrosshairEnabled = false;
+	inline float   CrosshairSize = 6.f;       // arm length in px
+	inline float   CrosshairThickness = 1.5f;
+	inline float   CrosshairGap = 3.f;        // center gap in px
+	inline int     CrosshairStyle = 0;        // 0: Cross  1: Dot  2: Circle  3: Cross+Dot
+	inline ImColor CrosshairColor = ImColor(0, 255, 0, 255);
+	inline bool    CrosshairOnEnemyColor = true;
+	inline ImColor CrosshairEnemyColor = ImColor(255, 0, 0, 255);
+
 	// ======== Text Customization ========
 	inline ImColor NameColor = ImColor(255, 255, 255, 255);
 	inline float NameFontSize = 14.f;
