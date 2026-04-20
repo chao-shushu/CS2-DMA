@@ -334,7 +334,7 @@
             <div class="feature-card reveal">
                 <div class="f-icon">&#128065;</div>
                 <h3 data-i18n="f1t">Visuals / ESP</h3>
-                <p data-i18n="f1d">Box, Bone, Health Bar, Armor Bar, Weapon, Distance, Player Name, Eye Ray, Snaplines, Head Dot, Safe Zone — fully customizable.</p>
+                <p data-i18n="f1d">Box, Bone, Health Bar, Armor Bar, Weapon, Distance, Player Name, Eye Ray, Snaplines, Head Dot, Safe Zone, Spectator List — fully customizable.</p>
             </div>
             <div class="feature-card reveal reveal-delay-1">
                 <div class="f-icon">&#128163;</div>
@@ -370,6 +370,26 @@
                 <div class="f-icon">&#128737;</div>
                 <h3 data-i18n="f8t">Crash Handler</h3>
                 <p data-i18n="f8d">SEH + std::terminate capture. Auto-generates .log + .dmp with recent logs, feature state, and system info.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="f-icon">&#127919;</div>
+                <h3 data-i18n="f9t">Crosshair Overlay</h3>
+                <p data-i18n="f9d">4 styles (Cross/Dot/Circle/Cross+Dot), adjustable size &amp; color. Turns custom color when aiming at an enemy.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-1">
+                <div class="f-icon">&#128064;</div>
+                <h3 data-i18n="f10t">Spectator List</h3>
+                <p data-i18n="f10d">Detect who is spectating you. Shows spectator name, team color, and spectate mode ([Eye]/[Chase]/[Roam]).</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-2">
+                <div class="f-icon">&#128202;</div>
+                <h3 data-i18n="f11t">Performance Monitor</h3>
+                <p data-i18n="f11d">On-screen overlay: FPS (color-coded), frame time, entity count, grenade count, spectator count.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-3">
+                <div class="f-icon">&#128274;</div>
+                <h3 data-i18n="f12t">Auto Validation</h3>
+                <p data-i18n="f12d">Startup checks: GitHub offset comparison, game version via Steam API, and auto update detection with proxy support.</p>
             </div>
         </div>
     </div>
@@ -603,7 +623,7 @@
             rel_ver:'Version', rel_date:'Updated', rel_dl:'Downloads',
             feat_tag:'Features', feat_title:'Everything You Need',
             feat_desc:'Full-featured external ESP system with DMA hardware optimization, designed for minimal latency and maximum stability.',
-            f1t:'Visuals / ESP', f1d:'Box, Bone, Health Bar, Armor Bar, Weapon, Distance, Player Name, Eye Ray, Snaplines, Head Dot, Safe Zone \u2014 fully customizable.',
+            f1t:'Visuals / ESP', f1d:'Box, Bone, Health Bar, Armor Bar, Weapon, Distance, Player Name, Eye Ray, Snaplines, Head Dot, Safe Zone, Spectator List \u2014 fully customizable.',
             f2t:'Bomb ESP', f2d:'Planted / Carried / Dropped / Defusing status display with explosion and defuse countdown timers.',
             f3t:'Projectile ESP', f3d:'Real-time display of in-flight flashbangs, smokes, HE grenades, molotovs, and decoys with explosion radius rendering.',
             f4t:'Web Radar', f4d:'Built-in WebSocket server. Any device on the LAN can view real-time radar via browser.',
@@ -611,6 +631,10 @@
             f6t:'DMA Optimization', f6d:'Scatter batch reads, on-demand field reading, tiered entity caching, zero-copy snapshot \u2014 sub-frame latency.',
             f7t:'Config System', f7d:'Create / save / load / delete multiple configs. Auto-loads _autosave.config on startup. Full JSON-based settings.',
             f8t:'Crash Handler', f8d:'SEH + std::terminate capture. Auto-generates .log + .dmp with recent logs, feature state, and system info.',
+            f9t:'Crosshair Overlay', f9d:'4 styles (Cross/Dot/Circle/Cross+Dot), adjustable size & color. Turns custom color when aiming at an enemy.',
+            f10t:'Spectator List', f10d:'Detect who is spectating you. Shows spectator name, team color, and spectate mode ([Eye]/[Chase]/[Roam]).',
+            f11t:'Performance Monitor', f11d:'On-screen overlay: FPS (color-coded), frame time, entity count, grenade count, spectator count.',
+            f12t:'Auto Validation', f12d:'Startup checks: GitHub offset comparison, game version via Steam API, and auto update detection with proxy support.',
             ss_tag:'Screenshots', ss_title:'See It in Action',
             ss_desc:'Real gameplay captures demonstrating the tool\'s ESP, radar, and grenade helper capabilities.',
             ss_esp:'Visuals / ESP', ss_bomb:'Bomb ESP', ss_proj:'Projectile ESP', ss_radar:'Web Radar', ss_gren:'Grenade Helper',
@@ -638,7 +662,7 @@
             rel_ver:'\u7248\u672c', rel_date:'\u66f4\u65b0\u65e5\u671f', rel_dl:'\u4e0b\u8f7d\u6b21\u6570',
             feat_tag:'\u529f\u80fd\u7279\u6027', feat_title:'\u5168\u529f\u80fd\u8986\u76d6',
             feat_desc:'\u5168\u529f\u80fd\u5916\u90e8 ESP \u7cfb\u7edf\uff0c\u914d\u5408 DMA \u786c\u4ef6\u4f18\u5316\uff0c\u4e3a\u6700\u4f4e\u5ef6\u8fdf\u548c\u6781\u81f4\u7a33\u5b9a\u800c\u8bbe\u8ba1\u3002',
-            f1t:'Visuals / ESP', f1d:'\u65b9\u6846\u3001\u9aa8\u9abc\u3001\u8840\u91cf\u6761\u3001\u62a4\u7532\u6761\u3001\u6b66\u5668\u3001\u8ddd\u79bb\u3001\u73a9\u5bb6\u540d\u79f0\u3001\u89c6\u7ebf\u3001\u8fde\u7ebf\u3001\u5934\u90e8\u5706\u70b9\u3001\u5b89\u5168\u533a\u57df \u2014\u2014 \u5b8c\u5168\u53ef\u81ea\u5b9a\u4e49\u3002',
+            f1t:'Visuals / ESP', f1d:'\u65b9\u6846\u3001\u9aa8\u9abc\u3001\u8840\u91cf\u6761\u3001\u62a4\u7532\u6761\u3001\u6b66\u5668\u3001\u8ddd\u79bb\u3001\u73a9\u5bb6\u540d\u79f0\u3001\u89c6\u7ebf\u3001\u8fde\u7ebf\u3001\u5934\u90e8\u5706\u70b9\u3001\u5b89\u5168\u533a\u57df\u3001\u89c2\u4f17\u5217\u8868 \u2014\u2014 \u5b8c\u5168\u53ef\u81ea\u5b9a\u4e49\u3002',
             f2t:'\u70b8\u5f39 ESP', f2d:'\u70b8\u5f39\u5df2\u5b89\u88c5 / \u88ab\u643a\u5e26 / \u6389\u843d / \u6b63\u5728\u62c6\u9664\u72b6\u6001\u663e\u793a\uff0c\u7206\u70b8\u5012\u8ba1\u65f6\u4e0e\u62c6\u9664\u5012\u8ba1\u65f6\u3002',
             f3t:'\u6295\u63b7\u7269 ESP', f3d:'\u5b9e\u65f6\u663e\u793a\u98de\u884c\u4e2d\u7684\u95ea\u5149\u5f39\u3001\u70df\u96fe\u5f39\u3001HE\u3001\u71c3\u70e7\u5f39\u3001\u8bf1\u9975\u5f39\uff0c\u5e76\u6e32\u67d3\u7206\u70b8/\u6548\u679c\u8303\u56f4\u5708\u3002',
             f4t:'\u7f51\u9875\u96f7\u8fbe', f4d:'\u5185\u5d4c WebSocket \u670d\u52a1\u5668\uff0c\u5c40\u57df\u7f51\u5185\u4efb\u4f55\u8bbe\u5907\u6d4f\u89c8\u5668\u5373\u53ef\u67e5\u770b\u5b9e\u65f6\u96f7\u8fbe\u3002',
@@ -646,6 +670,10 @@
             f6t:'DMA \u4f4e\u5ef6\u8fdf\u4f18\u5316', f6d:'Scatter \u6279\u91cf\u8bfb\u53d6\u3001\u6309\u9700\u8bfb\u53d6\u3001\u5b9e\u4f53\u7f13\u5b58\u5206\u5c42\u3001\u5feb\u7167\u96f6\u62f7\u8d1d \u2014\u2014 \u6570\u636e\u5ef6\u8fdf < 1 \u5e27\u3002',
             f7t:'\u914d\u7f6e\u7cfb\u7edf', f7d:'\u521b\u5efa / \u4fdd\u5b58 / \u52a0\u8f7d / \u5220\u9664\u591a\u5957\u914d\u7f6e\u3002\u542f\u52a8\u81ea\u52a8\u52a0\u8f7d _autosave.config\u3002\u5b8c\u5168 JSON \u683c\u5f0f\u3002',
             f8t:'\u5d29\u6e83\u5904\u7406', f8d:'SEH + std::terminate \u6355\u83b7\uff0c\u81ea\u52a8\u751f\u6210 .log + .dmp\uff0c\u542b\u6700\u8fd1\u65e5\u5fd7\u3001\u529f\u80fd\u72b6\u6001\u3001\u7cfb\u7edf\u4fe1\u606f\u3002',
+            f9t:'\u51c6\u661f\u8986\u76d6\u5c42', f9d:'4 \u79cd\u6837\u5f0f\uff08\u5341\u5b57/\u5706\u70b9/\u5706\u5708/\u5341\u5b57+\u5706\u70b9\uff09\uff0c\u53ef\u8c03\u5927\u5c0f\u989c\u8272\u3002\u7784\u51c6\u654c\u4eba\u65f6\u81ea\u52a8\u53d8\u8272\u3002',
+            f10t:'\u89c2\u4f17\u5217\u8868', f10d:'\u68c0\u6d4b\u8c01\u5728\u89c2\u6218\u4f60\uff0c\u663e\u793a\u89c2\u4f17\u540d\u79f0\u3001\u961f\u4f0d\u989c\u8272\u3001\u89c2\u6218\u6a21\u5f0f\uff08[Eye]/[Chase]/[Roam]\uff09\u3002',
+            f11t:'\u6027\u80fd\u76d1\u63a7', f11d:'\u5c4f\u5e55\u8986\u76d6\u5c42\uff1aFPS\uff08\u989c\u8272\u7f16\u7801\uff09\u3001\u5e27\u65f6\u95f4\u3001\u5b9e\u4f53\u6570\u3001\u6295\u63b7\u7269\u6570\u3001\u89c2\u4f17\u6570\u3002',
+            f12t:'\u81ea\u52a8\u6821\u9a8c', f12d:'\u542f\u52a8\u68c0\u67e5\uff1aGitHub \u504f\u79fb\u5bf9\u6bd4\u3001Steam API \u6e38\u620f\u7248\u672c\u68c0\u6d4b\u3001\u81ea\u52a8\u66f4\u65b0\u63d0\u793a\uff08\u652f\u6301\u4ee3\u7406\uff09\u3002',
             ss_tag:'\u622a\u56fe', ss_title:'\u5b9e\u9645\u6548\u679c',
             ss_desc:'\u771f\u5b9e\u6e38\u620f\u622a\u56fe\uff0c\u5c55\u793a ESP\u3001\u96f7\u8fbe\u3001\u6295\u63b7\u7269\u52a9\u624b\u7b49\u529f\u80fd\u6548\u679c\u3002',
             ss_esp:'Visuals / ESP', ss_bomb:'\u70b8\u5f39 ESP', ss_proj:'\u6295\u63b7\u7269 ESP', ss_radar:'\u7f51\u9875\u96f7\u8fbe', ss_gren:'\u6295\u63b7\u7269\u52a9\u624b',

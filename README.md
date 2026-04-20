@@ -28,7 +28,14 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Snaplines** — Lines from screen edge to enemies
 - **Head Dot** — Head position marker
 - **Safe Zone** — Crosshair area ESP cutout to reduce visual clutter
+- **Spectator List** — Detect who is spectating you, show spectator name, team color, and spectate mode ([Eye]/[Chase]/[Roam])
 <img width="827" height="524" alt="image" src="https://github.com/user-attachments/assets/6589c93a-007a-467f-966b-6b6126f92d60" />
+
+### Crosshair Overlay (Fusion Tab)
+- 4 crosshair styles: Cross / Dot / Circle / Cross+Dot
+- Adjustable arm length, thickness, gap, and color
+- Enemy color change: crosshair turns custom color when aiming at an enemy
+- Crosshair Safe Zone integration
 
 ### Bomb ESP
 - Planted / Carried / Dropped / Defusing status display
@@ -60,9 +67,19 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Tiered Entity Caching** — High-frequency data (position, health) is read every frame; low-frequency data (name, team) updates at 5/50 frame intervals, reducing 80%+ redundant reads
 - **Zero-Copy Snapshot** — `DataThread` holds a write lock only briefly during pointer swap; render thread reads without blocking — data latency < 1 frame, say goodbye to flickering boxes
 
+### Performance Monitor
+- On-screen overlay: FPS (color-coded), frame time, entity count, grenade count, spectator count
+- Toggle from Settings tab
+
 ### Other
 - **Config System** — Create / save / load / delete multiple configs, auto-loads `_autosave.config` on startup
+- **Auto Update Check** — Compares local version against GitHub Releases on startup; offers to redirect to download page if newer version available
 - **Offset Validation** — Compares local offsets against GitHub repository at startup; prompts user if mismatch detected
+- **Game Version Check** — Queries Steam API for latest CS2 news timestamp and compares with local offset date to detect outdated offsets
+- **System Proxy Auto-Detection** — Automatically detects and uses system proxy (manual/PAC/WPAD) for GitHub and Steam API connections, helpful for users behind firewalls
+- **Multi-Monitor Support** — Enumerate all displays; select target monitor for overlay rendering with auto-positioned window
+- **Render Resolution** — Resolution presets (4:3, 16:9, 16:10) or auto-detect; DPI-aware rendering
+- **Debug Log Toggle** — Runtime switch for TRACE/DEBUG level logs; zero overhead when disabled
 - **Help Button** — Quick link to project GitHub page from the Settings menu
 - **Multi-language** — Chinese / English toggle
 - **Logging System** — Leveled logging (TRACE → FATAL) with ring buffer for crash diagnostics
@@ -109,10 +126,11 @@ CS2-DMA/
 
 | Tab | Description |
 |-----|-------------|
-| **Visuals** | Box, bone, health bar, armor bar, weapon, distance, name, eye ray, snaplines, etc. |
+| **Visuals** | Box, bone, health bar, armor bar, weapon, distance, name, eye ray, snaplines, spectator list, etc. |
 | **Radar** | Web Radar toggle, port, broadcast interval |
 | **Grenade** | Grenade helper toggle, record positions, edit/delete |
-| **Settings** | Frame rate limit, VSync, language, team filter |
+| **Fusion** | Crosshair overlay (4 styles + enemy color change), crosshair safe zone |
+| **Settings** | Frame rate limit, VSync, language, team filter, monitor selection, resolution, performance monitor, debug log |
 | **Config** | Create, save, load, delete config files |
 
 ### Offsets Outdated?
