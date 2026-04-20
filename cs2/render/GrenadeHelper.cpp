@@ -553,8 +553,9 @@ namespace GrenadeHelper
         if (w <= 0.001f)
             return false;  // Direction is behind the camera
 
-        float halfW = Gui.Window.Size.x / 2.0f;
-        float halfH = Gui.Window.Size.y / 2.0f;
+        ImVec2 ds = ImGui::GetIO().DisplaySize;
+        float halfW = ds.x / 2.0f;
+        float halfH = ds.y / 2.0f;
 
         screenPos.x = halfW + (M[0][0] * dir.x + M[0][1] * dir.y + M[0][2] * dir.z) / w * halfW;
         screenPos.y = halfH - (M[1][0] * dir.x + M[1][1] * dir.y + M[1][2] * dir.z) / w * halfH;

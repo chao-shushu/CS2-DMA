@@ -4,6 +4,9 @@
 #include <vector>
 #include <atomic>
 
+// Current software version (must match GitHub Release tag format)
+constexpr const char* PROJECT_VERSION = "1.1.0";
+
 enum class AppState {
 	DMA_INITIALIZING,
 	DMA_FAILED,

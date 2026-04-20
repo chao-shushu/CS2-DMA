@@ -20,6 +20,7 @@ typedef long NTSTATUS;
 #include <windows.h>
 #include <timeapi.h>
 #include <winhttp.h>
+#include <shellapi.h>
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "winhttp.lib")
 
@@ -184,6 +185,75 @@ static std::string downloadUrl(const wchar_t* host, const wchar_t* path) {
 	return {};
 }
 
+// Check GitHub Releases for newer version; if found, open releases page and return false (stop launch)
+static bool CheckForUpdates() {
+	LOG_INFO("Config", "Checking for updates (current: v{})...", PROJECT_VERSION);
+	std::string response = downloadUrl(L"api.github.com", L"/repos/chao-shushu/CS2-DMA/releases/latest");
+	if (response.empty()) {
+		LOG_WARNING("Config", "Could not reach GitHub Releases API, continuing");
+		return true; // network issue, don't block launch
+	}
+
+	// Simple JSON parse: find "tag_name":"..."
+	const std::string tagKey = "\"tag_name\"";
+	size_t pos = response.find(tagKey);
+	if (pos == std::string::npos) return true;
+	pos = response.find('"', pos + tagKey.size());
+	if (pos == std::string::npos) return true;
+	size_t endPos = response.find('"', pos + 1);
+	if (endPos == std::string::npos) return true;
+	std::string latestTag = response.substr(pos + 1, endPos - pos - 1);
+
+	// Strip optional 'v' prefix for comparison
+	std::string latestVer = latestTag;
+	if (!latestVer.empty() && latestVer[0] == 'v') latestVer = latestVer.substr(1);
+	std::string curVer = PROJECT_VERSION;
+
+	// Semantic version comparison: only prompt if remote is strictly newer
+	auto parseVer = [](const std::string& v) -> std::vector<int> {
+		std::vector<int> parts;
+		size_t start = 0;
+		for (size_t i = 0; i <= v.size(); ++i) {
+			if (i == v.size() || v[i] == '.') {
+				parts.push_back(std::atoi(v.substr(start, i - start).c_str()));
+				start = i + 1;
+			}
+		}
+		return parts;
+	};
+	std::vector<int> remote = parseVer(latestVer);
+	std::vector<int> local  = parseVer(curVer);
+	bool remoteNewer = false;
+	for (size_t i = 0; i < remote.size() || i < local.size(); ++i) {
+		int r = i < remote.size() ? remote[i] : 0;
+		int l = i < local.size()  ? local[i]  : 0;
+		if (r > l) { remoteNewer = true; break; }
+		if (r < l) { break; } // local is newer at this component
+	}
+
+	if (remoteNewer) {
+		LOG_INFO("Config", "New version available: {} (current: v{})", latestTag, PROJECT_VERSION);
+		std::cout << "\n========================================" << std::endl;
+		std::cout << "\xd0\xc2\xb0\xe6\xb1\xbe\xbf\xc9\xd3\xc3: " << latestTag << " (\xb5\xb1\xc7\xb0: v" << PROJECT_VERSION << ")" << std::endl;
+		std::cout << "New version available: " << latestTag << " (current: v" << PROJECT_VERSION << ")" << std::endl;
+		std::cout << "\xca\xc7\xb7\xf1\xcc\xf8\xd7\xaa\xb5\xbd Releases \xd2\xb3\xc3\xe6\xcf\xc2\xd4\xd8\xd7\xee\xd0\xc2\xb0\xe6\xb1\xbe\xa3\xbf (y/n): ";
+		std::cout << "Open Releases page to download? (y/n): ";
+		char choice = 'y';
+		std::cin >> choice;
+		std::cout << "========================================\n" << std::endl;
+
+		if (choice == 'y' || choice == 'Y') {
+			ShellExecuteA(nullptr, "open", "https://github.com/chao-shushu/CS2-DMA/releases/latest",
+				nullptr, nullptr, SW_SHOWNORMAL);
+			return false; // stop launch, user chose to update
+		}
+		LOG_INFO("Config", "User chose to continue with current version");
+		return true; // user chose to continue
+	} else {
+		LOG_INFO("Config", "Already up to date (v{})", PROJECT_VERSION);
+		return true;
+	}
+}
 
 void main(HMODULE module) {
 	// Enable DPI awareness for crisp rendering at native resolution
@@ -285,6 +355,12 @@ void main(HMODULE module) {
 		LOG_INFO("Config", "User confirmed to use local offsets");
 	}
 	// --- End unified validation ---
+
+	// --- Auto-update check (stops launch if new version available) ---
+	if (!CheckForUpdates()) {
+		LOG_INFO("Config", "User chose to update, stopping launch");
+		return;
+	}
 
 	Offset::UpdateOffsets(offsets, client);
 	LOG_INFO("Config", "Offsets updated");

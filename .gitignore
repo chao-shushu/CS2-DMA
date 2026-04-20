@@ -1,6 +1,8 @@
 # === Build artifacts ===
-build/
+/build/
 *.exe
+!external/dumper/target/release/*.exe
+!external/dumper/target/release/*.dll
 *.pdb
 *.obj
 *.lib
@@ -31,20 +33,21 @@ saved/
 # === Docs (maintained separately) ===
 docs/
 
-# === External subprojects (too large for main repo) ===
-external/
+# === External subprojects ===
+# Dumper: ignore build cache, keep source + binaries
+external/dumper/target/release/deps/
+external/dumper/target/release/build/
+external/dumper/target/release/incremental/
+external/dumper/target/release/.fingerprint/
+external/dumper/output/
+external/dumper/cs2-dumper.log
+# Webradar: ignore node_modules
+external/webradar/webapp/node_modules/
 
-# === Development versions ===
-cs2-v2/
 
 # === Distribution (dev only) ===
 dist/
 
-# === Keygen (secrets & build artifacts only) ===
-tools/keygen/keys/
-tools/keygen/keys.json
-tools/keygen/.env
-tools/keygen/keygen.exe
 
 # === OS / Misc ===
 Thumbs.db

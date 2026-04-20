@@ -9,8 +9,8 @@ public:
 	bool WorldToScreen(const Vec3& Pos, Vec2& ToPos)
 	{
 		float View = 0.f;
-		float SightX = Gui.Window.Size.x / 2, SightY = Gui.Window.Size.y / 2;
-
+		ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+	float SightX = displaySize.x / 2, SightY = displaySize.y / 2;
 
 		View = Matrix[3][0] * Pos.x + Matrix[3][1] * Pos.y + Matrix[3][2] * Pos.z + Matrix[3][3];
 
@@ -27,7 +27,8 @@ public:
 	static bool WorldToScreen(const float Matrix[4][4], const Vec3& Pos, Vec2& ToPos)
 	{
 		float View = 0.f;
-		float SightX = Gui.Window.Size.x / 2, SightY = Gui.Window.Size.y / 2;
+		ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+	float SightX = displaySize.x / 2, SightY = displaySize.y / 2;
 
 		View = Matrix[3][0] * Pos.x + Matrix[3][1] * Pos.y + Matrix[3][2] * Pos.z + Matrix[3][3];
 

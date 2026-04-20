@@ -1,0 +1,11 @@
+/.idea
+/.vscode
+/.vs
+/target/**
+!target/release/
+target/release/**
+!target/release/cs2-dumper.exe
+!target/release/FTD3XXWU.dll
+!target/release/leechcore.dll
+!target/release/leechcore_driver.dll
+Cargo.lock

@@ -14,7 +14,8 @@ namespace Render
 
 	{
 
-		Gui.Line({ Rect.x + Rect.z / 2,Rect.y }, { Gui.Window.Size.x / 2,0 }, Color, Thickness);
+		ImVec2 ds = ImGui::GetIO().DisplaySize;
+		Gui.Line({ Rect.x + Rect.z / 2,Rect.y }, { ds.x / 2,0 }, Color, Thickness);
 
 	}
 
@@ -31,7 +32,8 @@ namespace Render
 
 		Vec2 LineEndPoint[2];
 
-		Vec2 Pos = Gui.Window.Size / 2;
+		ImVec2 ds2 = ImGui::GetIO().DisplaySize;
+		Vec2 Pos = Vec2(ds2.x / 2, ds2.y / 2);
 
 
 
@@ -117,7 +119,7 @@ namespace Render
 
 
 
-		Pos = ImVec2(Entity.Pawn.ScreenPos.x - Size.x / 2, Head.ScreenPos.y- Size.y*0.08f);
+		Pos = ImVec2(Entity.Pawn.ScreenPos.x - Size.x / 2, Head.ScreenPos.y - Size.y * 0.18f);
 
 
 
@@ -724,11 +726,12 @@ namespace Render
 		entityTop.x = Rect.x + Rect.z / 2;
 		entityTop.y = Rect.y;
 		Vec2 from;
+		ImVec2 ds3 = ImGui::GetIO().DisplaySize;
 		switch (Origin) {
 		default:
-		case 0: from.x = Gui.Window.Size.x / 2; from.y = 0; break;
-		case 1: from.x = Gui.Window.Size.x / 2; from.y = Gui.Window.Size.y / 2; break;
-		case 2: from.x = Gui.Window.Size.x / 2; from.y = Gui.Window.Size.y; break;
+		case 0: from.x = ds3.x / 2; from.y = 0; break;
+		case 1: from.x = ds3.x / 2; from.y = ds3.y / 2; break;
+		case 2: from.x = ds3.x / 2; from.y = ds3.y; break;
 		}
 		Gui.Line(entityTop, from, Color, Thickness);
 	}
