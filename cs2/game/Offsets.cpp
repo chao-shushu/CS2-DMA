@@ -210,15 +210,20 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 	LOG_INFO("Config", "Successfully loaded offsets");
 	LOG_DEBUG("Offsets", "Bomb: Ticking=0x{:X} C4Blow=0x{:X} Defused=0x{:X} BeingDefused=0x{:X} DefuseCD=0x{:X}",
 		Offset::BombTicking, Offset::C4Blow, Offset::BombDefused, Offset::BeingDefused, Offset::DefuseCountDown);
-	LOG_DEBUG("Offsets", "Grenade: EntityIdentity=0x{:X} DesignerName=0x{:X}",
-		Offset::EntityIdentity, Offset::DesignerName);
-	return true;
 }
 
 bool Offset::ParseVersion(const std::string& versionData)
 {
+	// Skip UTF-8 BOM if present (PowerShell Set-Content adds it)
+	const char* data = versionData.c_str();
+	if (versionData.size() >= 3 &&
+		(unsigned char)data[0] == 0xEF &&
+		(unsigned char)data[1] == 0xBB &&
+		(unsigned char)data[2] == 0xBF)
+		data += 3;
+
 	Document doc;
-	doc.Parse(versionData.c_str());
+	doc.Parse(data);
 	if (doc.HasParseError()) {
 		LOG_ERROR("Config", "Failed to parse version.json (code: {})", (int)doc.GetParseError());
 		return false;

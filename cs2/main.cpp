@@ -114,15 +114,18 @@ void main(HMODULE module) {
 	// 2) Steam game version check
 	std::string versionData = readFile("data/version.json");
 	if (!versionData.empty()) {
-		Offset::ParseVersion(versionData);
-		LOG_INFO("Config", "Checking CS2 game version via Steam API...");
-		std::string steamNews = downloadUrl(L"api.steampowered.com", L"/ISteamNews/GetNewsForApp/v2/?appid=730&count=3&maxlength=0");
-		if (!steamNews.empty()) {
-			if (!Offset::CheckGameVersion(steamNews)) {
-				versionMismatch = true;
-			}
+		if (!Offset::ParseVersion(versionData)) {
+			LOG_WARNING("Config", "version.json parse failed, skipping game version check");
 		} else {
-			LOG_WARNING("Config", "Could not fetch Steam API, skipping game version check");
+			LOG_INFO("Config", "Checking CS2 game version via Steam API...");
+			std::string steamNews = downloadUrl(L"api.steampowered.com", L"/ISteamNews/GetNewsForApp/v2/?appid=730&count=3&maxlength=0");
+			if (!steamNews.empty()) {
+				if (!Offset::CheckGameVersion(steamNews)) {
+					versionMismatch = true;
+				}
+			} else {
+				LOG_WARNING("Config", "Could not fetch Steam API, skipping game version check");
+			}
 		}
 	} else {
 		LOG_WARNING("Config", "version.json not found, skipping game version check");
