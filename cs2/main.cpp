@@ -91,31 +91,66 @@ void main(HMODULE module) {
 	std::string offsets = readFile("data/offsets.json");
 	std::string client = readFile("data/client_dll.json");
 
+	// --- Unified offset & version validation ---
+	bool offsetMismatch = false;
+	bool versionMismatch = false;
+
+	// 1) GitHub offset comparison
 	LOG_INFO("Config", "Checking offsets against GitHub repository...");
 	std::string remoteOffsets = downloadUrl(L"raw.githubusercontent.com", L"/chao-shushu/CS2-DMA/main/data/offsets.json");
 	std::string remoteClient = downloadUrl(L"raw.githubusercontent.com", L"/chao-shushu/CS2-DMA/main/data/client_dll.json");
 
 	if (!remoteOffsets.empty() && !remoteClient.empty()) {
 		if (offsets != remoteOffsets || client != remoteClient) {
-			std::cout << "\n========================================" << std::endl;
-			std::cout << "\xc6\xab\xd2\xc6\xd6\xb5\xd0\xa3\xd1\xe9\xce\xb4\xcd\xa8\xb9\xfd\xa3\xac\xc7\xeb\xc8\xb7\xc8\xcf\xca\xc7\xb7\xf1\xca\xc7\xd7\xee\xd0\xc2\xc6\xab\xd2\xc6\xd6\xb5\xa3\xbf" << std::endl;
-			std::cout << "Offset verification failed. Are you using the latest offsets?" << std::endl;
-			std::cout << "GitHub: https://github.com/chao-shushu/CS2-DMA/tree/main/data" << std::endl;
-			std::cout << "========================================\n" << std::endl;
-			std::cout << "\xbc\xcc\xd0\xf8\xca\xb9\xd3\xc3\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5? / Continue with local offsets? (y/n): ";
-			char choice = 'n';
-			std::cin >> choice;
-			if (choice != 'y' && choice != 'Y') {
-				LOG_INFO("Config", "User declined to use local offsets, exiting");
-				return;
-			}
-			LOG_INFO("Config", "User confirmed to use local offsets");
+			offsetMismatch = true;
+			LOG_WARNING("Config", "Local offsets differ from GitHub repository");
 		} else {
 			LOG_INFO("Config", "Local offsets match GitHub repository");
 		}
 	} else {
-		LOG_WARNING("Config", "Could not fetch remote offsets, skipping validation");
+		LOG_WARNING("Config", "Could not fetch remote offsets, skipping GitHub validation");
 	}
+
+	// 2) Steam game version check
+	std::string versionData = readFile("data/version.json");
+	if (!versionData.empty()) {
+		Offset::ParseVersion(versionData);
+		LOG_INFO("Config", "Checking CS2 game version via Steam API...");
+		std::string steamNews = downloadUrl(L"api.steampowered.com", L"/ISteamNews/GetNewsForApp/v2/?appid=730&count=3&maxlength=0");
+		if (!steamNews.empty()) {
+			if (!Offset::CheckGameVersion(steamNews)) {
+				versionMismatch = true;
+			}
+		} else {
+			LOG_WARNING("Config", "Could not fetch Steam API, skipping game version check");
+		}
+	} else {
+		LOG_WARNING("Config", "version.json not found, skipping game version check");
+	}
+
+	// 3) Single unified warning if any check failed
+	if (offsetMismatch || versionMismatch) {
+		std::cout << "\n========================================" << std::endl;
+		if (offsetMismatch) {
+			std::cout << "\xc6\xab\xd2\xc6\xd6\xb5\xd3\xebGitHub\xb2\xcd\xbf\xe2\xb2\xbb\xd2\xbb\xd6\xc2\xa3\xac\xbf\xc9\xc4\xdc\xb2\xbb\xca\xc7\xd7\xee\xd0\xc2\xc6\xab\xd2\xc6\xd6\xb5\xa1\xa3" << std::endl;
+			std::cout << "Local offsets differ from GitHub, may not be the latest." << std::endl;
+		}
+		if (versionMismatch) {
+			std::cout << "CS2\xb8\xfc\xd0\xc2\xc8\xd5\xc6\xda\xb3\xac\xb9\xfd\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5\xc8\xd5\xc6\xda(" << Offset::GameUpdateDate << ")\xa3\xac\xc6\xab\xd2\xc6\xd6\xb5\xbf\xc9\xc4\xdc\xd2\xd1\xb9\xfd\xc6\xda\xa1\xa3" << std::endl;
+			std::cout << "CS2 update is newer than local offset date (" << Offset::GameUpdateDate << "), offsets may be outdated!" << std::endl;
+		}
+		std::cout << "GitHub: https://github.com/chao-shushu/CS2-DMA/tree/main/data" << std::endl;
+		std::cout << "========================================\n" << std::endl;
+		std::cout << "\xbc\xcc\xd0\xf8\xca\xb9\xd3\xc3\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5? / Continue with local offsets? (y/n): ";
+		char choice = 'n';
+		std::cin >> choice;
+		if (choice != 'y' && choice != 'Y') {
+			LOG_INFO("Config", "User declined to use local offsets, exiting");
+			return;
+		}
+		LOG_INFO("Config", "User confirmed to use local offsets");
+	}
+	// --- End unified validation ---
 
 	Offset::UpdateOffsets(offsets, client);
 	LOG_INFO("Config", "Offsets updated");

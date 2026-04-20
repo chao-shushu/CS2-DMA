@@ -214,3 +214,73 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 		Offset::EntityIdentity, Offset::DesignerName);
 	return true;
 }
+
+bool Offset::ParseVersion(const std::string& versionData)
+{
+	Document doc;
+	doc.Parse(versionData.c_str());
+	if (doc.HasParseError()) {
+		LOG_ERROR("Config", "Failed to parse version.json (code: {})", (int)doc.GetParseError());
+		return false;
+	}
+
+	if (doc.HasMember("game_update_date") && doc["game_update_date"].IsString())
+		GameUpdateDate = doc["game_update_date"].GetString();
+
+	if (doc.HasMember("game_update_timestamp")) {
+		if (doc["game_update_timestamp"].IsInt64())
+			GameUpdateTimestamp = doc["game_update_timestamp"].GetInt64();
+		else if (doc["game_update_timestamp"].IsInt())
+			GameUpdateTimestamp = doc["game_update_timestamp"].GetInt();
+	}
+
+	LOG_INFO("Config", "Version info: date={}, timestamp={}", GameUpdateDate, GameUpdateTimestamp);
+	return !GameUpdateDate.empty() && GameUpdateTimestamp > 0;
+}
+
+bool Offset::CheckGameVersion(const std::string& steamNewsData)
+{
+	Document doc;
+	doc.Parse(steamNewsData.c_str());
+	if (doc.HasParseError()) {
+		LOG_WARNING("Config", "Failed to parse Steam API response");
+		return true; // assume OK if can't parse
+	}
+
+	if (!doc.HasMember("appnews") || !doc["appnews"].IsObject()) return true;
+	const auto& appnews = doc["appnews"];
+	if (!appnews.HasMember("newsitems") || !appnews["newsitems"].IsArray()) return true;
+
+	const auto& items = appnews["newsitems"];
+	int64_t latestUpdate = 0;
+	for (SizeType i = 0; i < items.Size(); i++) {
+		if (items[i].HasMember("date")) {
+			int64_t d = 0;
+			if (items[i]["date"].IsInt64()) d = items[i]["date"].GetInt64();
+			else if (items[i]["date"].IsInt()) d = items[i]["date"].GetInt();
+			if (d > latestUpdate) latestUpdate = d;
+		}
+	}
+
+	LatestSteamUpdateTimestamp = latestUpdate;
+
+	// Convert timestamps to human-readable dates for logging
+	char localDate[32] = {}, steamDate[32] = {};
+	time_t localT = static_cast<time_t>(GameUpdateTimestamp);
+	tm localTm = {}, steamTm = {};
+	gmtime_s(&localTm, &localT);
+	strftime(localDate, sizeof(localDate), "%Y-%m-%d", &localTm);
+	time_t steamT = static_cast<time_t>(latestUpdate);
+	gmtime_s(&steamTm, &steamT);
+	strftime(steamDate, sizeof(steamDate), "%Y-%m-%d", &steamTm);
+
+	if (latestUpdate > GameUpdateTimestamp) {
+		LOG_WARNING("Config", "CS2 game updated! Steam latest: {} ({}), Local offset date: {} ({})",
+			steamDate, latestUpdate, localDate, GameUpdateTimestamp);
+		return false; // version mismatch
+	}
+
+	LOG_INFO("Config", "CS2 game version matches. Steam latest: {} ({}), Local: {} ({})",
+		steamDate, latestUpdate, localDate, GameUpdateTimestamp);
+	return true; // version matches
+}

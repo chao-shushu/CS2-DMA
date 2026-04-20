@@ -174,10 +174,23 @@ if exist "%rootDir%\data\client_dll.json" copy "%rootDir%\data\client_dll.json" 
 copy "%outputDir%\client_dll.json" "%rootDir%\data\client_dll.json" >nul 2>&1
 set /a copied+=1
 echo [OK] Copied: client_dll.json
-goto show_info
+goto gen_version
 
 :missing_client
 echo [!] Missing: client_dll.json
+goto gen_version
+
+:gen_version
+:: Generate version.json from dumper info.json
+if not exist "%outputDir%\info.json" goto show_info
+echo [*] Generating version.json from info.json...
+powershell -NoProfile -Command "$info = Get-Content '%outputDir%\info.json' | ConvertFrom-Json; $ts = [DateTimeOffset]::Parse($info.timestamp).ToUnixTimeSeconds(); $date = $info.timestamp.Substring(0,10); @{game_update_date=$date; game_update_timestamp=$ts} | ConvertTo-Json | Set-Content '%rootDir%\data\version.json' -Encoding UTF8"
+if errorlevel 1 (
+    echo [!] Failed to generate version.json
+) else (
+    echo [OK] Copied: version.json
+    set /a copied+=1
+)
 
 :show_info
 :: Show version info
@@ -189,10 +202,10 @@ for /f "tokens=2 delims=:" %%a in ('findstr "timestamp" "%outputDir%\info.json" 
 
 :done
 echo.
-if %copied%==2 (
+if %copied%==3 (
     echo [OK] All offset files updated successfully!
 ) else (
-    echo [!] Some files were not copied (%copied%/2)
+    echo [!] Some files were not copied (%copied%/3)
 )
 echo.
 echo Press any key to return to menu...

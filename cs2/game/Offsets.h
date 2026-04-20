@@ -2,9 +2,14 @@
 
 #include <Windows.h>
 #include <string>
+#include <cstdint>
 
 namespace Offset
 {
+	// Version info
+	inline std::string GameUpdateDate;
+	inline int64_t GameUpdateTimestamp = 0;
+	inline int64_t LatestSteamUpdateTimestamp = 0;
 	inline DWORD EntityList;
 	inline DWORD Matrix ;
 	inline DWORD LocalPlayerController;
@@ -91,4 +96,6 @@ namespace Offset
 	} inline GlobalVar;
 
 	bool UpdateOffsets(std::string offsetdata, std::string clientdata);
+	bool ParseVersion(const std::string& versionData);
+	bool CheckGameVersion(const std::string& steamNewsData);
 }

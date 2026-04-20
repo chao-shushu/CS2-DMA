@@ -34,8 +34,17 @@ docs/
 # === External subprojects (too large for main repo) ===
 external/
 
+# === Development versions ===
+cs2-v2/
+
 # === Distribution (dev only) ===
 dist/
+
+# === Keygen (secrets & build artifacts only) ===
+tools/keygen/keys/
+tools/keygen/keys.json
+tools/keygen/.env
+tools/keygen/keygen.exe
 
 # === OS / Misc ===
 Thumbs.db
