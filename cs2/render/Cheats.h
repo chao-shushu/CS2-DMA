@@ -41,6 +41,25 @@ struct GrenadeProjectile
 	float StationaryTimer = 0.f;  // seconds since position stopped changing
 };
 
+// Spectator info: player who is spectating (observer)
+struct SpectatorInfo
+{
+	std::string Name;
+	int TeamID = 0;        // team of the spectator
+	int ObserverMode = 0;  // OBS_MODE_IN_EYE=4, OBS_MODE_CHASE=5, etc.
+};
+
+// Performance stats for the perf monitor overlay
+struct PerfStats
+{
+	float Framerate = 0.f;
+	float FrameTimeMs = 0.f;
+	int EntityCount = 0;
+	int ProjectileCount = 0;
+	int SpectatorCount = 0;
+	float DataThreadHz = 0.f;
+};
+
 // Unified snapshot: single lock protects all shared state
 struct GameSnapshot
 {
@@ -51,6 +70,7 @@ struct GameSnapshot
 	int LocalPlayerIndex = -1;
 	BombData Bomb;
 	std::vector<GrenadeProjectile> Projectiles;
+	std::vector<SpectatorInfo> Spectators;
 };
 
 namespace Cheats

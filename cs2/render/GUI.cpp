@@ -293,6 +293,10 @@ static void DrawTab_Visuals() {
 			}
 		}
 	}
+
+	if (ImGui::CollapsingHeader(lang.header_spectator.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		Gui.MyCheckBox(lang.visuals_spectatorlist.c_str(), &MenuConfig::ShowSpectatorList);
+	}
 }
 
 // ============================================================================
@@ -342,7 +346,82 @@ static void DrawTab_Settings() {
 		}
 	}
 
+	if (ImGui::CollapsingHeader(lang.header_display.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		// Monitor selection
+		if (!MenuConfig::MonitorList.empty()) {
+			ImGui::SetNextItemWidth(220);
+			const auto& monitors = MenuConfig::MonitorList;
+			int curIdx = (MenuConfig::MonitorIndex >= 0 && MenuConfig::MonitorIndex < (int)monitors.size()) ? MenuConfig::MonitorIndex : 0;
+			if (ImGui::BeginCombo(lang.settings_monitor.c_str(), monitors[curIdx].name.c_str())) {
+				for (int i = 0; i < (int)monitors.size(); i++) {
+					bool selected = (i == MenuConfig::MonitorIndex);
+					if (ImGui::Selectable(monitors[i].name.c_str(), selected))
+						MenuConfig::MonitorIndex = i;
+					if (selected) ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_monitortip.c_str());
+		}
+
+		// Resolution selection (common 4:3 and 16:9 presets)
+		{
+			struct ResPreset { int w, h; const char* label; };
+			static const ResPreset resPresets[] = {
+				{0, 0, "Auto"},
+				// 4:3
+				{1024, 768, "1024x768 (4:3)"},
+				{1280, 960, "1280x960 (4:3)"},
+				{1440, 1080, "1440x1080 (4:3)"},
+				{1600, 1200, "1600x1200 (4:3)"},
+				// 16:9
+				{1280, 720, "1280x720 (16:9)"},
+				{1366, 768, "1366x768 (16:9)"},
+				{1600, 900, "1600x900 (16:9)"},
+				{1920, 1080, "1920x1080 (16:9)"},
+				{2560, 1440, "2560x1440 (16:9)"},
+				{3840, 2160, "3840x2160 (16:9)"},
+				// 16:10
+				{1440, 900, "1440x900 (16:10)"},
+				{1680, 1050, "1680x1050 (16:10)"},
+				{1920, 1200, "1920x1200 (16:10)"},
+			};
+			constexpr int resCount = sizeof(resPresets) / sizeof(resPresets[0]);
+
+			// Find current selection
+			int curRes = 0;
+			for (int i = 1; i < resCount; i++) {
+				if (MenuConfig::RenderWidth == resPresets[i].w && MenuConfig::RenderHeight == resPresets[i].h) {
+					curRes = i;
+					break;
+				}
+			}
+			// If custom value not in list, show as "Custom (WxH)"
+			bool isCustom = (curRes == 0 && (MenuConfig::RenderWidth != 0 || MenuConfig::RenderHeight != 0));
+			char customLabel[64] = {};
+			if (isCustom)
+				_snprintf_s(customLabel, _TRUNCATE, "Custom (%dx%d)", MenuConfig::RenderWidth, MenuConfig::RenderHeight);
+
+			ImGui::SetNextItemWidth(220);
+			if (ImGui::BeginCombo(lang.settings_resolution.c_str(), isCustom ? customLabel : resPresets[curRes].label)) {
+				for (int i = 0; i < resCount; i++) {
+					bool selected = (i == curRes && !isCustom);
+					if (ImGui::Selectable(resPresets[i].label, selected)) {
+						MenuConfig::RenderWidth = resPresets[i].w;
+						MenuConfig::RenderHeight = resPresets[i].h;
+					}
+					if (selected) ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_renderautotip.c_str());
+		}
+	}
+
 	if (ImGui::CollapsingHeader(lang.header_system.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		Gui.MyCheckBox(lang.settings_perfmonitor.c_str(), &MenuConfig::ShowPerfMonitor);
+
+		ImGui::Spacing();
 		{
 			bool prev = MenuConfig::DebugLog;
 			Gui.MyCheckBox(lang.settings_debuglog.c_str(), &MenuConfig::DebugLog);

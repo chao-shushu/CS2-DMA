@@ -71,6 +71,11 @@ namespace Offset
 	inline DWORD DesignerName;           // CEntityIdentity::m_designerName
 	inline DWORD HighestEntityIndex;     // dwGameEntitySystem_highestEntityIndex
 
+	// Observer (spectator detection)
+	inline DWORD ObserverServices;        // C_BasePlayerPawn::m_pObserverServices
+	inline DWORD ObserverMode;             // CPlayer_ObserverServices::m_iObserverMode
+	inline DWORD ObserverTarget;           // CPlayer_ObserverServices::m_hObserverTarget
+
 	// Grenade projectile
 	inline DWORD GrenadeIsLive;           // C_BaseGrenade::m_bIsLive
 	inline DWORD GrenadeDmgRadius;        // C_BaseGrenade::m_DmgRadius

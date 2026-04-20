@@ -5,6 +5,7 @@
 #include "Bone.h"
 
 #include <map>
+#include <vector>
 
 
 
@@ -14,6 +15,20 @@ namespace MenuConfig
 
 	inline int MaxFrameRate = 0;
 	inline bool VSync = false;
+
+	// ======== Render Resolution ========
+	inline int RenderWidth = 0;   // 0 = auto (monitor resolution)
+	inline int RenderHeight = 0;  // 0 = auto (monitor resolution)
+
+	// ======== Monitor Selection ========
+	inline int MonitorIndex = 0;  // 0 = primary monitor, 1+ = secondary
+
+	struct MonitorDesc {
+		int index;
+		int x, y, width, height;
+		std::string name; // e.g. "Monitor 1 (1920x1080)"
+	};
+	inline std::vector<MonitorDesc> MonitorList;
 
 
 
@@ -135,6 +150,12 @@ namespace MenuConfig
 	inline ImColor CrosshairColor = ImColor(0, 255, 0, 255);
 	inline bool    CrosshairOnEnemyColor = true;
 	inline ImColor CrosshairEnemyColor = ImColor(255, 0, 0, 255);
+
+	// ======== Spectator List ========
+	inline bool  ShowSpectatorList = false;
+
+	// ======== Performance Monitor ========
+	inline bool  ShowPerfMonitor = false;
 
 	// ======== Text Customization ========
 	inline ImColor NameColor = ImColor(255, 255, 255, 255);

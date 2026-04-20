@@ -97,6 +97,14 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::CameraServices = SafeGetUint64(fields, "m_pCameraServices");
 			Offset::ItemServices = SafeGetUint64(fields, "m_pItemServices");
 			Offset::WeaponServices = SafeGetUint64(fields, "m_pWeaponServices");
+			Offset::ObserverServices = SafeGetUint64(fields, "m_pObserverServices");
+		}
+
+		// CPlayer_ObserverServices
+		if (classes.HasMember("CPlayer_ObserverServices") && classes["CPlayer_ObserverServices"].HasMember("fields")) {
+			const auto& fields = classes["CPlayer_ObserverServices"]["fields"];
+			Offset::ObserverMode = SafeGetUint64(fields, "m_iObserverMode");
+			Offset::ObserverTarget = SafeGetUint64(fields, "m_hObserverTarget");
 		}
 
 		// CPlayer_WeaponServices

@@ -213,8 +213,42 @@ namespace OSImGui
         CleanImGui();
     }
 
+    // Callback for EnumDisplayMonitors to collect monitor info
+    struct EnumMonitorCtx {
+        std::vector<MenuConfig::MonitorDesc>* list;
+    };
+
+    static BOOL CALLBACK EnumMonitorCallback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+        auto* ctx = reinterpret_cast<EnumMonitorCtx*>(dwData);
+        MONITORINFOEXW mi;
+        mi.cbSize = sizeof(mi);
+        GetMonitorInfoW(hMonitor, &mi);
+
+        MenuConfig::MonitorDesc desc;
+        desc.index = (int)ctx->list->size();
+        desc.x = (int)lprcMonitor->left;
+        desc.y = (int)lprcMonitor->top;
+        desc.width = (int)(lprcMonitor->right - lprcMonitor->left);
+        desc.height = (int)(lprcMonitor->bottom - lprcMonitor->top);
+
+        // Build name: "Monitor N (WxH)" + [Primary] if primary
+        char nameBuf[128];
+        _snprintf_s(nameBuf, _TRUNCATE, "Monitor %d (%dx%d)%s",
+            desc.index + 1, desc.width, desc.height,
+            (mi.dwFlags & MONITORINFOF_PRIMARY) ? " [Primary]" : "");
+        desc.name = nameBuf;
+
+        ctx->list->push_back(desc);
+        return TRUE;
+    }
+
     bool OSImGui_External::CreateMyWindow()
     {
+        // Enumerate all monitors
+        MenuConfig::MonitorList.clear();
+        EnumMonitorCtx ctx{ &MenuConfig::MonitorList };
+        EnumDisplayMonitors(NULL, NULL, EnumMonitorCallback, (LPARAM)&ctx);
+
         WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc_External, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, Window.wClassName.c_str(), NULL };
         RegisterClassExW(&wc);
         if (Type == ATTACH)
@@ -226,7 +260,23 @@ namespace OSImGui
         else
         {
             Window.BgColor = IM_COL32_BLACK;
-            Window.hWnd = CreateWindowExW(WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, Window.wClassName.c_str(), Window.wName.c_str(), WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, GetModuleHandle(NULL), NULL);
+
+            // Select target monitor
+            int monX = 0, monY = 0, monW = GetSystemMetrics(SM_CXSCREEN), monH = GetSystemMetrics(SM_CYSCREEN);
+            if (!MenuConfig::MonitorList.empty()) {
+                int idx = MenuConfig::MonitorIndex;
+                if (idx < 0 || idx >= (int)MenuConfig::MonitorList.size())
+                    idx = 0;
+                const auto& mon = MenuConfig::MonitorList[idx];
+                monX = mon.x;
+                monY = mon.y;
+                monW = mon.width;
+                monH = mon.height;
+            }
+
+            int winW = (Window.Size.x > 0) ? (int)Window.Size.x : monW;
+            int winH = (Window.Size.y > 0) ? (int)Window.Size.y : monH;
+            Window.hWnd = CreateWindowExW(WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, Window.wClassName.c_str(), Window.wName.c_str(), WS_POPUP, monX, monY, winW, winH, NULL, NULL, GetModuleHandle(NULL), NULL);
         }
         Window.hInstance = wc.hInstance;
 

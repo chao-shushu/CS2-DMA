@@ -90,6 +90,7 @@ public:
 	std::string header_recording;
 	std::string header_pending;
 	std::string header_savededitor;
+	std::string header_spectator;
 
 	// Visuals Extra
 	std::string visuals_thickness;
@@ -116,6 +117,10 @@ public:
 	std::string safezone_shape;
 	const char* safezone_shapeselect[2];
 
+	// Spectator List & Perf Monitor
+	std::string visuals_spectatorlist;
+	std::string settings_perfmonitor;
+
 	// Debug
 	std::string settings_debuglog;
 	std::string settings_debuglog_tip;
@@ -125,6 +130,12 @@ public:
 	std::string settings_maxfps;
 	std::string settings_unlimited;
 	std::string settings_unlimitedtip;
+
+	// Display / Resolution
+	std::string settings_resolution;
+	std::string settings_renderautotip;
+	std::string settings_monitor;
+	std::string settings_monitortip;
 
 	// Grenade Extra
 	std::string grenade_pressanykey;
@@ -277,10 +288,10 @@ public:
 		this->header_snapline = "Snapline";
 		this->header_general = "General";
 		this->header_system = "System";
-		this->header_display = "Display Settings";
 		this->header_recording = "Recording / Hotkey";
 		this->header_pending = "Pending Throws";
 		this->header_savededitor = "Saved Throws Editor";
+		this->header_spectator = "Spectator List";
 
 		this->visuals_thickness = "Thickness";
 		this->visuals_rounding = "Rounding";
@@ -305,6 +316,9 @@ public:
 		this->safezone_shape = "Shape";
 		this->safezone_shapeselect[0] = "Circle"; this->safezone_shapeselect[1] = "Square";
 
+		this->visuals_spectatorlist = "Show Spectator List";
+		this->settings_perfmonitor = "Performance Monitor";
+
 		this->settings_debuglog = "Debug Log";
 		this->settings_debuglog_tip = "Enable verbose TRACE/DEBUG logging for troubleshooting (impacts performance)";
 
@@ -312,6 +326,11 @@ public:
 		this->settings_maxfps = "Max FPS";
 		this->settings_unlimited = "Unlimited";
 		this->settings_unlimitedtip = "0 = Unlimited";
+
+		this->settings_resolution = "Resolution";
+		this->settings_renderautotip = "Auto = use monitor native resolution, restart to apply";
+		this->settings_monitor = "Monitor";
+		this->settings_monitortip = "Select which monitor to render on, restart to apply";
 
 		this->grenade_pressanykey = "Press any key...";
 		this->grenade_hotkeytip = "Click button then press key | Supports mouse side buttons | ESC cancel";
@@ -451,10 +470,10 @@ public:
 		this->header_snapline = u8"\u5c04\u7ebf";
 		this->header_general = u8"\u5e38\u89c4";
 		this->header_system = u8"\u7cfb\u7edf";
-		this->header_display = u8"\u663e\u793a\u8bbe\u7f6e";
 		this->header_recording = u8"\u5f55\u5236 / \u5feb\u6377\u952e";
 		this->header_pending = u8"\u5f85\u547d\u540d\u6295\u63b7\u70b9";
 		this->header_savededitor = u8"\u5df2\u4fdd\u5b58\u6295\u63b7\u70b9\u7f16\u8f91";
+		this->header_spectator = u8"\u89c2\u4f17\u5217\u8868";
 
 		this->visuals_thickness = u8"\u7c97\u7ec6";
 		this->visuals_rounding = u8"\u5706\u89d2";
@@ -479,6 +498,9 @@ public:
 		this->safezone_shape = u8"\u5f62\u72b6";
 		this->safezone_shapeselect[0] = u8"\u5706\u5f62"; this->safezone_shapeselect[1] = u8"\u65b9\u5f62";
 
+		this->visuals_spectatorlist = u8"\u663e\u793a\u89c2\u4f17\u5217\u8868";
+		this->settings_perfmonitor = u8"\u6027\u80fd\u76d1\u63a7";
+
 		this->settings_debuglog = u8"\u8c03\u8bd5\u65e5\u5fd7";
 		this->settings_debuglog_tip = u8"\u542f\u7528\u8be6\u7ec6\u7684 TRACE/DEBUG \u65e5\u5fd7\u8f93\u51fa\u7528\u4e8e\u95ee\u9898\u5b9a\u4f4d\uff08\u5f71\u54cd\u6027\u80fd\uff09";
 
@@ -486,6 +508,11 @@ public:
 		this->settings_maxfps = u8"\u6700\u5927\u5e27\u7387";
 		this->settings_unlimited = u8"\u65e0\u9650\u5236";
 		this->settings_unlimitedtip = u8"0 = \u65e0\u9650\u5236";
+
+		this->settings_resolution = u8"\u5206\u8fa8\u7387";
+		this->settings_renderautotip = u8"\u81ea\u52a8 = \u4f7f\u7528\u663e\u793a\u5668\u539f\u751f\u5206\u8fa8\u7387, \u91cd\u542f\u540e\u751f\u6548";
+		this->settings_monitor = u8"\u663e\u793a\u5668";
+		this->settings_monitortip = u8"\u9009\u62e9\u7ed8\u5236\u7684\u663e\u793a\u5668, \u91cd\u542f\u540e\u751f\u6548";
 
 		this->grenade_pressanykey = u8"\u6309\u4efb\u610f\u952e...";
 		this->grenade_hotkeytip = u8"\u70b9\u51fb\u6309\u94ae\u540e\u6309\u952e | \u652f\u6301\u9f20\u6807\u4fa7\u952e | ESC\u53d6\u6d88";

@@ -298,6 +298,103 @@ void Cheats::Run()
 			GrenadeHelper::NeedSave = false;
 		}
 
+		// Spectator List overlay
+		if (MenuConfig::ShowSpectatorList && !snap.Spectators.empty()) {
+			ImDrawList* dl = ImGui::GetBackgroundDrawList();
+			ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+
+			float posX = screenSize.x - 220.f;
+			float posY = 10.f;
+			float lineH = 18.f;
+			float padX = 10.f;
+			float padY = 6.f;
+
+			// Background
+			float bgHeight = padY * 2 + lineH * (1 + (float)snap.Spectators.size());
+			dl->AddRectFilled({ posX - padX, posY - padY }, { screenSize.x - 6.f, posY - padY + bgHeight },
+				IM_COL32(10, 10, 15, 200), 6.f);
+			dl->AddRect({ posX - padX, posY - padY }, { screenSize.x - 6.f, posY - padY + bgHeight },
+				ImColor(0.486f, 0.361f, 0.988f, 0.60f), 6.f, 15, 1.f);
+
+			// Title
+			dl->AddText({ posX, posY }, ImColor(0.608f, 0.490f, 1.0f, 1.0f), "Spectators");
+			posY += lineH;
+
+			for (const auto& spec : snap.Spectators) {
+				ImColor nameCol = (spec.TeamID == LocalPlayerSnapshot.Controller.TeamID)
+					? ImColor(100, 200, 255, 255)   // teammate: blue
+					: ImColor(255, 100, 100, 255);   // enemy: red
+
+				// Observer mode label
+				const char* modeStr = "";
+				if (spec.ObserverMode == 4) modeStr = "[Eye] ";
+				else if (spec.ObserverMode == 5) modeStr = "[Chase] ";
+				else if (spec.ObserverMode == 6) modeStr = "[Roam] ";
+
+				char text[128];
+				snprintf(text, sizeof(text), "%s%s", modeStr, spec.Name.c_str());
+				dl->AddText({ posX, posY }, nameCol, text);
+				posY += lineH;
+			}
+		}
+
+		// Performance Monitor overlay
+		if (MenuConfig::ShowPerfMonitor) {
+			ImDrawList* dl = ImGui::GetBackgroundDrawList();
+
+			float posX = 10.f;
+			float posY = 10.f;
+			float lineH = 16.f;
+			float padX = 10.f;
+			float padY = 6.f;
+
+			float fps = ImGui::GetIO().Framerate;
+			float frameTimeMs = 1000.f / (fps > 0.f ? fps : 1.f);
+
+			// Count lines
+			int lines = 5; // FPS, FrameTime, Entities, Projectiles, Spectators
+			float bgHeight = padY * 2 + lineH * lines;
+
+			dl->AddRectFilled({ posX - padX, posY - padY }, { posX + 180.f + padX, posY - padY + bgHeight },
+				IM_COL32(10, 10, 15, 200), 6.f);
+			dl->AddRect({ posX - padX, posY - padY }, { posX + 180.f + padX, posY - padY + bgHeight },
+				ImColor(0.486f, 0.361f, 0.988f, 0.60f), 6.f, 15, 1.f);
+
+			ImColor labelCol(180, 180, 200, 255);
+			ImColor valueCol(255, 255, 255, 255);
+
+			// FPS (color coded)
+			ImColor fpsCol;
+			if (fps >= 60.f) fpsCol = ImColor(0, 220, 100, 255);
+			else if (fps >= 30.f) fpsCol = ImColor(255, 200, 0, 255);
+			else fpsCol = ImColor(255, 50, 50, 255);
+
+			char buf[64];
+			snprintf(buf, sizeof(buf), "%.0f", fps);
+			dl->AddText({ posX, posY }, labelCol, "FPS:");
+			dl->AddText({ posX + 80.f, posY }, fpsCol, buf);
+			posY += lineH;
+
+			snprintf(buf, sizeof(buf), "%.1f ms", frameTimeMs);
+			dl->AddText({ posX, posY }, labelCol, "Frame:");
+			dl->AddText({ posX + 80.f, posY }, valueCol, buf);
+			posY += lineH;
+
+			snprintf(buf, sizeof(buf), "%d", (int)snap.Entities.size());
+			dl->AddText({ posX, posY }, labelCol, "Entities:");
+			dl->AddText({ posX + 80.f, posY }, valueCol, buf);
+			posY += lineH;
+
+			snprintf(buf, sizeof(buf), "%d", (int)snap.Projectiles.size());
+			dl->AddText({ posX, posY }, labelCol, "Projectiles:");
+			dl->AddText({ posX + 80.f, posY }, valueCol, buf);
+			posY += lineH;
+
+			snprintf(buf, sizeof(buf), "%d", (int)snap.Spectators.size());
+			dl->AddText({ posX, posY }, labelCol, "Spectators:");
+			dl->AddText({ posX + 80.f, posY }, valueCol, buf);
+		}
+
 		// Auto-save config every 5 seconds
 		{
 			static auto lastAutoSave = std::chrono::steady_clock::now();

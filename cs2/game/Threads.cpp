@@ -164,8 +164,8 @@ VOID DataThread()
 			                  MenuConfig::ShowPlayerName || MenuConfig::ShowDistance ||
 			                  MenuConfig::ShowEyeRay || MenuConfig::ShowLineToEnemy ||
 			                  MenuConfig::ShowHeadDot || MenuConfig::ShowArmorBar;
-			bool needEntityPipeline = anyESPDraw || MenuConfig::ShowWebRadar;
-			bool anyFeature = needEntityPipeline || MenuConfig::ShowProjectileESP;
+			bool needEntityPipeline = anyESPDraw || MenuConfig::ShowWebRadar || MenuConfig::ShowSpectatorList;
+			bool anyFeature = needEntityPipeline || MenuConfig::ShowProjectileESP || MenuConfig::ShowPerfMonitor;
 
 			LOG_TRACE("Data", "frame={} anyESP={} entityPipe={} anyFeat={}", frameCounter, anyESPDraw, needEntityPipeline, anyFeature);
 
@@ -1262,13 +1262,61 @@ VOID DataThread()
 					publishEntities.push_back(ce.entity);
 				}
 
-				LOG_TRACE("Data", "Publishing snapshot: entities={} projs={} localHP={}", publishEntities.size(), projectileCache.size(), localPlayer.Pawn.Health);
+				// ------- 9b. Spectator detection -------
+				std::vector<SpectatorInfo> spectators;
+				if (MenuConfig::ShowSpectatorList && localPawnAddr != 0) {
+					DWORD localPawnHandle = 0;
+					// Get local pawn's entity handle (index lower 16 bits)
+					// The local pawn address is known; we need its handle for comparison
+					// m_hObserverTarget stores a CHandle — lower 16 bits = entity index
+					for (const auto& ce : entityCache) {
+						if (ce.entity.Controller.AliveStatus != 1 && ce.pawnAddr != 0) {
+							// Dead player — check if spectating
+							DWORD64 obsSvcAddr = 0;
+							if (!ProcessMgr.ReadMemory<DWORD64>(ce.pawnAddr + Offset::ObserverServices, obsSvcAddr))
+								continue;
+							if (obsSvcAddr == 0) continue;
+
+							int obsMode = 0;
+							DWORD obsTarget = 0;
+							if (!ProcessMgr.ReadMemory<int>(obsSvcAddr + Offset::ObserverMode, obsMode))
+								continue;
+							if (!ProcessMgr.ReadMemory<DWORD>(obsSvcAddr + Offset::ObserverTarget, obsTarget))
+								continue;
+
+							// obsMode >= 4 means spectating (IN_EYE=4, CHASE=5, ROAMING=6)
+							if (obsMode >= 4 && obsTarget != 0) {
+								// Resolve target pawn address from handle
+								DWORD targetIdx = obsTarget & 0x1FF;
+								DWORD64 targetListEntry = 0;
+								if (!ProcessMgr.ReadMemory<DWORD64>(gGame.GetEntityListEntry(), targetListEntry))
+									continue;
+								if (!ProcessMgr.ReadMemory<DWORD64>(targetListEntry + 0x10 + 8 * (targetIdx >> 9), targetListEntry))
+									continue;
+								DWORD64 targetPawnAddr = 0;
+								if (!ProcessMgr.ReadMemory<DWORD64>(targetListEntry + 0x70 * (targetIdx & 0x1FF), targetPawnAddr))
+									continue;
+
+								if (targetPawnAddr == localPawnAddr) {
+									SpectatorInfo si;
+									si.Name = ce.entity.Controller.PlayerName;
+									si.TeamID = ce.entity.Controller.TeamID;
+									si.ObserverMode = obsMode;
+									spectators.push_back(si);
+								}
+							}
+						}
+					}
+				}
+
+				LOG_TRACE("Data", "Publishing snapshot: entities={} projs={} localHP={} spectators={}", publishEntities.size(), projectileCache.size(), localPlayer.Pawn.Health, spectators.size());
 				std::unique_lock<std::shared_mutex> lock(Cheats::SnapshotMutex);
 				memcpy(Cheats::Snapshot.Matrix, matrix, sizeof(matrix));
 				Cheats::Snapshot.LocalPlayer = localPlayer;
 				Cheats::Snapshot.LocalPlayer.LocalPlayerControllerIndex = localPlayerIndex;
 				Cheats::Snapshot.Entities.swap(publishEntities);
 				Cheats::Snapshot.Projectiles = projectileCache;
+				Cheats::Snapshot.Spectators = std::move(spectators);
 			}
 		}
 		catch (...) {

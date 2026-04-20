@@ -69,6 +69,9 @@ namespace MyConfigSaver {
         configFile << "CrosshairOnEnemyColor " << MenuConfig::CrosshairOnEnemyColor << std::endl;
         configFile << "CrosshairEnemyColor " << MenuConfig::CrosshairEnemyColor.Value.x << " " << MenuConfig::CrosshairEnemyColor.Value.y << " " << MenuConfig::CrosshairEnemyColor.Value.z << " " << MenuConfig::CrosshairEnemyColor.Value.w << std::endl;
         configFile << "VSync " << MenuConfig::VSync << std::endl;
+        configFile << "RenderWidth " << MenuConfig::RenderWidth << std::endl;
+        configFile << "RenderHeight " << MenuConfig::RenderHeight << std::endl;
+        configFile << "MonitorIndex " << MenuConfig::MonitorIndex << std::endl;
         configFile << "DebugLog " << MenuConfig::DebugLog << std::endl;
         configFile << "SelectedLanguage " << MenuConfig::SelectedLanguage << std::endl;
         configFile << "ShowWebRadar " << MenuConfig::ShowWebRadar << std::endl;
@@ -79,6 +82,8 @@ namespace MyConfigSaver {
         configFile << "BombCarrierColor " << MenuConfig::BombCarrierColor.Value.x << " " << MenuConfig::BombCarrierColor.Value.y << " " << MenuConfig::BombCarrierColor.Value.z << " " << MenuConfig::BombCarrierColor.Value.w << std::endl;
         configFile << "BombDroppedColor " << MenuConfig::BombDroppedColor.Value.x << " " << MenuConfig::BombDroppedColor.Value.y << " " << MenuConfig::BombDroppedColor.Value.z << " " << MenuConfig::BombDroppedColor.Value.w << std::endl;
         configFile << "BombDefusingColor " << MenuConfig::BombDefusingColor.Value.x << " " << MenuConfig::BombDefusingColor.Value.y << " " << MenuConfig::BombDefusingColor.Value.z << " " << MenuConfig::BombDefusingColor.Value.w << std::endl;
+        configFile << "ShowSpectatorList " << MenuConfig::ShowSpectatorList << std::endl;
+        configFile << "ShowPerfMonitor " << MenuConfig::ShowPerfMonitor << std::endl;
 
         configFile.close();
     }
@@ -151,6 +156,9 @@ namespace MyConfigSaver {
                 else if (key == "CrosshairOnEnemyColor") iss >> MenuConfig::CrosshairOnEnemyColor;
                 else if (key == "CrosshairEnemyColor") iss >> MenuConfig::CrosshairEnemyColor.Value.x >> MenuConfig::CrosshairEnemyColor.Value.y >> MenuConfig::CrosshairEnemyColor.Value.z >> MenuConfig::CrosshairEnemyColor.Value.w;
                 else if (key == "VSync") iss >> MenuConfig::VSync;
+                else if (key == "RenderWidth") iss >> MenuConfig::RenderWidth;
+                else if (key == "RenderHeight") iss >> MenuConfig::RenderHeight;
+                else if (key == "MonitorIndex") iss >> MenuConfig::MonitorIndex;
                 else if (key == "DebugLog") iss >> MenuConfig::DebugLog;
                 else if (key == "SelectedLanguage") iss >> MenuConfig::SelectedLanguage;
                 else if (key == "ShowWebRadar") iss >> MenuConfig::ShowWebRadar;
@@ -161,6 +169,8 @@ namespace MyConfigSaver {
                 else if (key == "BombCarrierColor") iss >> MenuConfig::BombCarrierColor.Value.x >> MenuConfig::BombCarrierColor.Value.y >> MenuConfig::BombCarrierColor.Value.z >> MenuConfig::BombCarrierColor.Value.w;
                 else if (key == "BombDroppedColor") iss >> MenuConfig::BombDroppedColor.Value.x >> MenuConfig::BombDroppedColor.Value.y >> MenuConfig::BombDroppedColor.Value.z >> MenuConfig::BombDroppedColor.Value.w;
                 else if (key == "BombDefusingColor") iss >> MenuConfig::BombDefusingColor.Value.x >> MenuConfig::BombDefusingColor.Value.y >> MenuConfig::BombDefusingColor.Value.z >> MenuConfig::BombDefusingColor.Value.w;
+                else if (key == "ShowSpectatorList") iss >> MenuConfig::ShowSpectatorList;
+                else if (key == "ShowPerfMonitor") iss >> MenuConfig::ShowPerfMonitor;
             }
         }
 
