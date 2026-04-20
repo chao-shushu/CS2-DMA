@@ -352,11 +352,9 @@ static void DrawTab_Settings() {
 		if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_debuglog_tip.c_str());
 
 		ImGui::Spacing();
-		static bool buffer2 = false;
-		if (ImGui::Checkbox(lang.utilities_reloadhack.c_str(), &buffer2)) {
+		if (ImGui::Button(lang.utilities_reloadhack.c_str(), ImVec2(200, 28))) {
 			ProcessMgr.Detach();
 			globalVars::gameState.store(AppState::SEARCHING_GAME);
-			buffer2 = false;
 		}
 
 		ImGui::Spacing();

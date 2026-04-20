@@ -221,7 +221,7 @@ public:
 
 		this->utilities_teamcheck = "Team Check";
 		this->utilities_closehack = "Close Software";
-		this->utilities_reloadhack = "Reload game";
+		this->utilities_reloadhack = "Reload Game (Click if not working)";
 		this->utilities_language = "Select Language";
 		this->utilities_help = "Help";
 
@@ -396,7 +396,7 @@ public:
 		this->utilities_teamcheck = u8"\u961f\u4f0d\u68c0\u67e5";
 		this->utilities_closehack = u8"\u5173\u95ed\u8f6f\u4ef6";
 		this->utilities_language = u8"\u9009\u62e9\u8bed\u8a00";
-		this->utilities_reloadhack = u8"\u91cd\u65b0\u83b7\u53d6\u6570\u636e";
+		this->utilities_reloadhack = u8"\u91cd\u65b0\u8bfb\u53d6\u6e38\u620f(\u65e0\u6548\u65f6\u70b9\u6211)";
 		this->utilities_help = u8"\u5e2e\u52a9";
 
 		this->config_newconfig = u8"\u914d\u7f6e\u540d\u79f0";

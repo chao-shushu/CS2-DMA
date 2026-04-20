@@ -187,14 +187,6 @@ namespace OSImGui
                 if (!UpdateWindowData())
                     break;
             }
-            else if (Type == NEW)
-            {
-                static int setWinPosCounter = 0;
-                if (++setWinPosCounter >= 60) {
-                    setWinPosCounter = 0;
-                    SetWindowPos(Window.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                }
-            }
             ImGui_ImplDX11_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
@@ -234,7 +226,7 @@ namespace OSImGui
         else
         {
             Window.BgColor = IM_COL32_BLACK;
-            Window.hWnd = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, Window.wClassName.c_str(), Window.wName.c_str(), WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, GetModuleHandle(NULL), NULL);
+            Window.hWnd = CreateWindowExW(WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, Window.wClassName.c_str(), Window.wName.c_str(), WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, GetModuleHandle(NULL), NULL);
         }
         Window.hInstance = wc.hInstance;
 
