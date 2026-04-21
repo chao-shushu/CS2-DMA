@@ -362,6 +362,8 @@ static void DrawTab_Settings() {
 				ImGui::EndCombo();
 			}
 			if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_monitortip.c_str());
+			ImGui::SameLine(0, 8);
+			ImGui::TextDisabled("(%s)", lang.settings_restarttip.c_str());
 		}
 
 		// Resolution selection (common 4:3 and 16:9 presets)
@@ -415,6 +417,8 @@ static void DrawTab_Settings() {
 				ImGui::EndCombo();
 			}
 			if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", lang.settings_renderautotip.c_str());
+			ImGui::SameLine(0, 8);
+			ImGui::TextDisabled("(%s)", lang.settings_restarttip.c_str());
 		}
 	}
 
@@ -933,6 +937,16 @@ void Cheats::Menu()
 			case 4: DrawTab_Grenade(); break;
 			case 5: DrawTab_Fusion(); break;
 			default: break;
+			}
+
+			// Detect any widget value change and mark config dirty for immediate save
+			// Track active→inactive transition: user just finished editing a widget
+			{
+				static bool wasAnyActive = false;
+				bool anyActive = ImGui::IsAnyItemActive();
+				if (wasAnyActive && !anyActive)
+					MyConfigSaver::MarkDirty();
+				wasAnyActive = anyActive;
 			}
 		}
 		ImGui::EndChild();

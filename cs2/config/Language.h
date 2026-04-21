@@ -130,6 +130,7 @@ public:
 	std::string settings_maxfps;
 	std::string settings_unlimited;
 	std::string settings_unlimitedtip;
+	std::string settings_restarttip;
 
 	// Display / Resolution
 	std::string settings_resolution;
@@ -326,6 +327,7 @@ public:
 		this->settings_maxfps = "Max FPS";
 		this->settings_unlimited = "Unlimited";
 		this->settings_unlimitedtip = "0 = Unlimited";
+		this->settings_restarttip = "restart to apply";
 
 		this->settings_resolution = "Resolution";
 		this->settings_renderautotip = "Auto = use monitor native resolution, restart to apply";
@@ -508,6 +510,7 @@ public:
 		this->settings_maxfps = u8"\u6700\u5927\u5e27\u7387";
 		this->settings_unlimited = u8"\u65e0\u9650\u5236";
 		this->settings_unlimitedtip = u8"0 = \u65e0\u9650\u5236";
+		this->settings_restarttip = u8"\u91cd\u542f\u540e\u751f\u6548";
 
 		this->settings_resolution = u8"\u5206\u8fa8\u7387";
 		this->settings_renderautotip = u8"\u81ea\u52a8 = \u4f7f\u7528\u663e\u793a\u5668\u539f\u751f\u5206\u8fa8\u7387, \u91cd\u542f\u540e\u751f\u6548";

@@ -177,4 +177,10 @@ namespace MyConfigSaver {
         configFile.close();
         LOG_DEBUG("Config", "LoadConfig: done, DebugLog={} ShowWebRadar={} Language={}", MenuConfig::DebugLog, MenuConfig::ShowWebRadar, MenuConfig::SelectedLanguage);
     }
+
+    static bool g_configDirty = false;
+
+    void MarkDirty()  { g_configDirty = true; }
+    bool IsDirty()    { return g_configDirty; }
+    void ClearDirty() { g_configDirty = false; }
 }

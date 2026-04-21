@@ -395,12 +395,13 @@ void Cheats::Run()
 			dl->AddText({ posX + 80.f, posY }, valueCol, buf);
 		}
 
-		// Auto-save config every 5 seconds
+		// Auto-save config: save immediately when dirty (200ms debounce), skip when clean
 		{
 			static auto lastAutoSave = std::chrono::steady_clock::now();
 			auto now = std::chrono::steady_clock::now();
-			if (now - lastAutoSave >= std::chrono::seconds(5)) {
+			if (MyConfigSaver::IsDirty() && (now - lastAutoSave) >= std::chrono::milliseconds(200)) {
 				MyConfigSaver::SaveConfig("_autosave.config");
+				MyConfigSaver::ClearDirty();
 				lastAutoSave = now;
 			}
 		}
