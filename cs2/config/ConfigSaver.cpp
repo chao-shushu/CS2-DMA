@@ -4,6 +4,7 @@
 #include <sstream>
 #include "ConfigSaver.h"
 #include "../game/MenuConfig.h"
+#include "../render/GrenadeHelper.h"
 #include "../utils/Logger.h"
 
 namespace MyConfigSaver {
@@ -84,6 +85,10 @@ namespace MyConfigSaver {
         configFile << "BombDefusingColor " << MenuConfig::BombDefusingColor.Value.x << " " << MenuConfig::BombDefusingColor.Value.y << " " << MenuConfig::BombDefusingColor.Value.z << " " << MenuConfig::BombDefusingColor.Value.w << std::endl;
         configFile << "ShowSpectatorList " << MenuConfig::ShowSpectatorList << std::endl;
         configFile << "ShowPerfMonitor " << MenuConfig::ShowPerfMonitor << std::endl;
+        configFile << "ShowProjectileESP " << MenuConfig::ShowProjectileESP << std::endl;
+        configFile << "ShowProjectileRange " << MenuConfig::ShowProjectileRange << std::endl;
+        configFile << "ProjectileRangeAlpha " << MenuConfig::ProjectileRangeAlpha << std::endl;
+        configFile << "MenuHotKey " << MenuConfig::MenuHotKey << std::endl;
 
         configFile.close();
     }
@@ -171,6 +176,13 @@ namespace MyConfigSaver {
                 else if (key == "BombDefusingColor") iss >> MenuConfig::BombDefusingColor.Value.x >> MenuConfig::BombDefusingColor.Value.y >> MenuConfig::BombDefusingColor.Value.z >> MenuConfig::BombDefusingColor.Value.w;
                 else if (key == "ShowSpectatorList") iss >> MenuConfig::ShowSpectatorList;
                 else if (key == "ShowPerfMonitor") iss >> MenuConfig::ShowPerfMonitor;
+                else if (key == "ShowProjectileESP") iss >> MenuConfig::ShowProjectileESP;
+                else if (key == "ShowProjectileRange") iss >> MenuConfig::ShowProjectileRange;
+                else if (key == "ProjectileRangeAlpha") iss >> MenuConfig::ProjectileRangeAlpha;
+                else if (key == "MenuHotKey") {
+                    iss >> MenuConfig::MenuHotKey;
+                    strcpy_s(MenuConfig::MenuHotKeyName, GrenadeHelper::GetKeyName(MenuConfig::MenuHotKey));
+                }
             }
         }
 

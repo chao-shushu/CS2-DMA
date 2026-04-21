@@ -121,6 +121,9 @@ public:
 	std::string visuals_spectatorlist;
 	std::string settings_perfmonitor;
 
+	// Menu Hotkey
+	std::string settings_menuhotkey;
+
 	// Debug
 	std::string settings_debuglog;
 	std::string settings_debuglog_tip;
@@ -181,6 +184,14 @@ public:
 	std::string dir_b;
 	std::string dir_l;
 	std::string dir_r;
+
+	// Console startup messages
+	std::string console_offset_mismatch;
+	std::string console_version_mismatch_prefix;
+	std::string console_version_mismatch_suffix;
+	std::string console_fetch_offsets;
+	std::string console_new_version;
+	std::string console_open_releases;
 
 	// Status Messages
 	std::string status_dma_init;
@@ -320,6 +331,8 @@ public:
 		this->visuals_spectatorlist = "Show Spectator List";
 		this->settings_perfmonitor = "Performance Monitor";
 
+		this->settings_menuhotkey = "Menu Hotkey";
+
 		this->settings_debuglog = "Debug Log";
 		this->settings_debuglog_tip = "Enable verbose TRACE/DEBUG logging for troubleshooting (impacts performance)";
 
@@ -384,6 +397,13 @@ public:
 		this->crosshair_onenemycolor = "Change Color on Enemy";
 		this->crosshair_enemycolor = "Enemy Color";
 		this->crosshair_styleselect[0] = "Cross"; this->crosshair_styleselect[1] = "Dot"; this->crosshair_styleselect[2] = "Circle"; this->crosshair_styleselect[3] = "Cross+Dot";
+
+		this->console_offset_mismatch = "Local offsets differ from GitHub repository, may be outdated.";
+		this->console_version_mismatch_prefix = "CS2 update date exceeds local offset date (";
+		this->console_version_mismatch_suffix = "), offsets may be expired.";
+		this->console_fetch_offsets = "Fetch latest offsets from GitHub? (y/n): ";
+		this->console_new_version = "New version available: ";
+		this->console_open_releases = "Open Releases page to download latest version? (y/n): ";
 
 		this->status_dma_init = "Initializing DMA...";
 		this->status_dma_failed = "DMA Connection Failed!";
@@ -503,6 +523,8 @@ public:
 		this->visuals_spectatorlist = u8"\u663e\u793a\u89c2\u4f17\u5217\u8868";
 		this->settings_perfmonitor = u8"\u6027\u80fd\u76d1\u63a7";
 
+		this->settings_menuhotkey = u8"\u83dc\u5355\u5feb\u6301\u952e";
+
 		this->settings_debuglog = u8"\u8c03\u8bd5\u65e5\u5fd7";
 		this->settings_debuglog_tip = u8"\u542f\u7528\u8be6\u7ec6\u7684 TRACE/DEBUG \u65e5\u5fd7\u8f93\u51fa\u7528\u4e8e\u95ee\u9898\u5b9a\u4f4d\uff08\u5f71\u54cd\u6027\u80fd\uff09";
 
@@ -567,6 +589,13 @@ public:
 		this->crosshair_onenemycolor = u8"\u7784\u51c6\u654c\u4eba\u53d8\u8272";
 		this->crosshair_enemycolor = u8"\u654c\u4eba\u989c\u8272";
 		this->crosshair_styleselect[0] = u8"\u5341\u5b57"; this->crosshair_styleselect[1] = u8"\u5706\u70b9"; this->crosshair_styleselect[2] = u8"\u5706\u5708"; this->crosshair_styleselect[3] = u8"\u5341\u5b57+\u5706\u70b9";
+
+		this->console_offset_mismatch = u8"\u504f\u79fb\u503c\u4e0eGitHub\u4ed3\u5e93\u4e0d\u4e00\u81f4\uff0c\u53ef\u80fd\u4e0d\u662f\u6700\u65b0\u504f\u79fb\u503c\u3002";
+		this->console_version_mismatch_prefix = u8"CS2\u66f4\u65b0\u65e5\u671f\u8d85\u8fc7\u672c\u5730\u504f\u79fb\u503c\u65e5\u671f(";
+		this->console_version_mismatch_suffix = u8"),\u504f\u79fb\u503c\u53ef\u80fd\u5df2\u8fc7\u671f\u3002";
+		this->console_fetch_offsets = u8"\u662f\u5426\u8fde\u63a5GitHub\u83b7\u53d6\u6700\u65b0\u504f\u79fb\u503c? (y/n): ";
+		this->console_new_version = u8"\u65b0\u7248\u672c\u53ef\u7528: ";
+		this->console_open_releases = u8"\u662f\u5426\u8df3\u8f6c\u5230 Releases \u9875\u9762\u4e0b\u8f7d\u6700\u65b0\u7248\u672c? (y/n): ";
 
 		this->status_dma_init = u8"\u521d\u59cb\u5316DMA...";
 		this->status_dma_failed = u8"DMA\u8fde\u63a5\u5931\u8d25!";

@@ -105,7 +105,7 @@ void Cheats::Run()
 
 		for (int i = 0; i < EntityListSnapshot.size(); i++)
 		{
-			CEntity Entity = EntityListSnapshot[i];
+			const CEntity& Entity = EntityListSnapshot[i];
 
 			if (Entity.Pawn.Health <= 0 || Entity.Pawn.Health > 100) continue;
 

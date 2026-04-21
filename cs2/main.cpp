@@ -5,6 +5,7 @@
 
 #include "utils/Logger.h"
 #include "utils/CrashHandler.h"
+#include "utils/Telemetry.h"
 
 #ifndef NTSTATUS
 typedef long NTSTATUS;
@@ -45,9 +46,10 @@ static std::string doWinHttpFetch(HINTERNET hSession, const wchar_t* host, const
 		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
 	if (!hRequest) { WinHttpCloseHandle(hConnect); return result; }
 
-	DWORD timeout = 5000;
-	WinHttpSetOption(hRequest, WINHTTP_OPTION_CONNECT_TIMEOUT, &timeout, sizeof(timeout));
-	WinHttpSetOption(hRequest, WINHTTP_OPTION_RECEIVE_TIMEOUT, &timeout, sizeof(timeout));
+	DWORD connectTimeout = 3000;
+	DWORD receiveTimeout = 8000;
+	WinHttpSetOption(hRequest, WINHTTP_OPTION_CONNECT_TIMEOUT, &connectTimeout, sizeof(connectTimeout));
+	WinHttpSetOption(hRequest, WINHTTP_OPTION_RECEIVE_TIMEOUT, &receiveTimeout, sizeof(receiveTimeout));
 
 	if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
 		WinHttpReceiveResponse(hRequest, NULL)) {
@@ -97,11 +99,40 @@ static bool ReadSystemProxyFromRegistry(std::wstring& outProxy, std::wstring& ou
 	return !outProxy.empty() || !outPacUrl.empty();
 }
 
+// Cached proxy session for reuse across multiple downloadUrl calls
+static std::wstring g_cachedProxy;
+static bool g_proxyChecked = false;
+
+// Detect system proxy once and cache it
+static const std::wstring& GetCachedProxy() {
+	if (g_proxyChecked) return g_cachedProxy;
+	g_proxyChecked = true;
+	std::wstring pacUrl;
+	if (ReadSystemProxyFromRegistry(g_cachedProxy, pacUrl)) {
+		if (!g_cachedProxy.empty())
+			LOG_INFO("Config", "System proxy from registry: {}", std::string(g_cachedProxy.begin(), g_cachedProxy.end()));
+	}
+	return g_cachedProxy;
+}
+
 // Download with auto system-proxy detection.
-// 1) Try direct connection (WINHTTP_ACCESS_TYPE_DEFAULT_PROXY)
-// 2) If that fails, detect system proxy from registry and retry
+// If system proxy is configured, use it directly (skip slow direct-attempt fallback).
+// Otherwise try default proxy then give up.
 static std::string downloadUrl(const wchar_t* host, const wchar_t* path) {
-	// --- Attempt 1: default (IE/WinInet proxy settings) ---
+	const std::wstring& proxy = GetCachedProxy();
+
+	// --- If proxy known, use it directly (skip slow direct connection) ---
+	if (!proxy.empty()) {
+		HINTERNET hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_NAMED_PROXY,
+			proxy.c_str(), WINHTTP_NO_PROXY_BYPASS, 0);
+		if (hSession) {
+			auto result = doWinHttpFetch(hSession, host, path);
+			WinHttpCloseHandle(hSession);
+			if (!result.empty()) return result;
+		}
+	}
+
+	// --- Fallback: default (IE/WinInet proxy settings) ---
 	{
 		HINTERNET hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 			WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
@@ -112,76 +143,7 @@ static std::string downloadUrl(const wchar_t* host, const wchar_t* path) {
 		}
 	}
 
-	// --- Attempt 2: read system proxy from registry ---
-	std::wstring regProxy, regPacUrl;
-	if (!ReadSystemProxyFromRegistry(regProxy, regPacUrl)) {
-		LOG_WARNING("Config", "No system proxy found in registry, direct connection failed");
-		return {};
-	}
-
-	// If manual proxy found, try it directly
-	if (!regProxy.empty()) {
-		LOG_INFO("Config", "System proxy from registry: {}", std::string(regProxy.begin(), regProxy.end()));
-		HINTERNET hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_NAMED_PROXY,
-			regProxy.c_str(), WINHTTP_NO_PROXY_BYPASS, 0);
-		if (hSession) {
-			auto result = doWinHttpFetch(hSession, host, path);
-			WinHttpCloseHandle(hSession);
-			if (!result.empty()) return result;
-		}
-	}
-
-	// If PAC URL found, use WinHttpGetProxyForUrl to resolve
-	if (!regPacUrl.empty()) {
-		HINTERNET hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_NO_PROXY,
-			WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-		if (hSession) {
-			wchar_t urlBuf[512];
-			swprintf_s(urlBuf, L"https://%s%s", host, path);
-
-			WINHTTP_AUTOPROXY_OPTIONS pacOpts = {};
-			pacOpts.dwFlags = WINHTTP_AUTOPROXY_CONFIG_URL;
-			pacOpts.dwAutoDetectFlags = 0;
-			pacOpts.lpszAutoConfigUrl = regPacUrl.c_str();
-			pacOpts.lpvReserved = nullptr;
-
-			WINHTTP_PROXY_INFO proxyInfo = {};
-			BOOL ok = WinHttpGetProxyForUrl(hSession, urlBuf, &pacOpts, &proxyInfo);
-
-			// If PAC resolution failed, try auto-detect as fallback
-			if (!ok) {
-				WINHTTP_AUTOPROXY_OPTIONS autoOpts = {};
-				autoOpts.dwFlags = WINHTTP_AUTOPROXY_AUTO_DETECT;
-				autoOpts.dwAutoDetectFlags = WINHTTP_AUTO_DETECT_TYPE_DHCP | WINHTTP_AUTO_DETECT_TYPE_DNS_A;
-				autoOpts.lpszAutoConfigUrl = nullptr;
-				autoOpts.lpvReserved = nullptr;
-				ok = WinHttpGetProxyForUrl(hSession, urlBuf, &autoOpts, &proxyInfo);
-			}
-
-			std::string result;
-			if (ok && proxyInfo.lpszProxy) {
-				{
-				std::wstring wsProxy(proxyInfo.lpszProxy);
-				LOG_INFO("Config", "PAC-resolved proxy: {}", std::string(wsProxy.begin(), wsProxy.end()));
-			}
-				WinHttpCloseHandle(hSession);
-				hSession = WinHttpOpen(L"CS2-DMA/1.0", WINHTTP_ACCESS_TYPE_NAMED_PROXY,
-					proxyInfo.lpszProxy, proxyInfo.lpszProxyBypass, 0);
-
-				if (hSession) {
-					result = doWinHttpFetch(hSession, host, path);
-				}
-
-				GlobalFree(proxyInfo.lpszProxy);
-				if (proxyInfo.lpszProxyBypass) GlobalFree(proxyInfo.lpszProxyBypass);
-			}
-
-			if (hSession) WinHttpCloseHandle(hSession);
-			if (!result.empty()) return result;
-		}
-	}
-
-	LOG_WARNING("Config", "All proxy attempts failed");
+	LOG_WARNING("Config", "All download attempts failed for {}", std::string(host, host + wcslen(host)));
 	return {};
 }
 
@@ -234,10 +196,8 @@ static bool CheckForUpdates() {
 	if (remoteNewer) {
 		LOG_INFO("Config", "New version available: {} (current: v{})", latestTag, PROJECT_VERSION);
 		std::cout << "\n========================================" << std::endl;
-		std::cout << "\xd0\xc2\xb0\xe6\xb1\xbe\xbf\xc9\xd3\xc3: " << latestTag << " (\xb5\xb1\xc7\xb0: v" << PROJECT_VERSION << ")" << std::endl;
-		std::cout << "New version available: " << latestTag << " (current: v" << PROJECT_VERSION << ")" << std::endl;
-		std::cout << "\xca\xc7\xb7\xf1\xcc\xf8\xd7\xaa\xb5\xbd Releases \xd2\xb3\xc3\xe6\xcf\xc2\xd4\xd8\xd7\xee\xd0\xc2\xb0\xe6\xb1\xbe\xa3\xbf (y/n): ";
-		std::cout << "Open Releases page to download? (y/n): ";
+		std::cout << lang.console_new_version << latestTag << " (v" << PROJECT_VERSION << ")" << std::endl;
+		std::cout << lang.console_open_releases;
 		char choice = 'y';
 		std::cin >> choice;
 		std::cout << "========================================\n" << std::endl;
@@ -256,6 +216,8 @@ static bool CheckForUpdates() {
 }
 
 void main(HMODULE module) {
+	SetConsoleOutputCP(65001);
+
 	// Enable DPI awareness for crisp rendering at native resolution
 	{
 		HMODULE shcore = LoadLibraryA("shcore.dll");
@@ -278,6 +240,7 @@ void main(HMODULE module) {
 	timeBeginPeriod(1);
 	Logger::Get().Init("logs");
 	CrashHandler::Install("logs");
+	Telemetry::Init();
 
 	LOG_INFO("DMA", "CS2-DMA starting...");
 	LOG_INFO("DMA", "Software coded by kuchao-chaoshushu");
@@ -336,23 +299,36 @@ void main(HMODULE module) {
 	if (offsetMismatch || versionMismatch) {
 		std::cout << "\n========================================" << std::endl;
 		if (offsetMismatch) {
-			std::cout << "\xc6\xab\xd2\xc6\xd6\xb5\xd3\xebGitHub\xb2\xcd\xbf\xe2\xb2\xbb\xd2\xbb\xd6\xc2\xa3\xac\xbf\xc9\xc4\xdc\xb2\xbb\xca\xc7\xd7\xee\xd0\xc2\xc6\xab\xd2\xc6\xd6\xb5\xa1\xa3" << std::endl;
-			std::cout << "Local offsets differ from GitHub, may not be the latest." << std::endl;
+			std::cout << lang.console_offset_mismatch << std::endl;
 		}
 		if (versionMismatch) {
-			std::cout << "CS2\xb8\xfc\xd0\xc2\xc8\xd5\xc6\xda\xb3\xac\xb9\xfd\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5\xc8\xd5\xc6\xda(" << Offset::GameUpdateDate << ")\xa3\xac\xc6\xab\xd2\xc6\xd6\xb5\xbf\xc9\xc4\xdc\xd2\xd1\xb9\xfd\xc6\xda\xa1\xa3" << std::endl;
-			std::cout << "CS2 update is newer than local offset date (" << Offset::GameUpdateDate << "), offsets may be outdated!" << std::endl;
+			std::cout << lang.console_version_mismatch_prefix << Offset::GameUpdateDate << lang.console_version_mismatch_suffix << std::endl;
 		}
 		std::cout << "GitHub: https://github.com/chao-shushu/CS2-DMA/tree/main/data" << std::endl;
 		std::cout << "========================================\n" << std::endl;
-		std::cout << "\xbc\xcc\xd0\xf8\xca\xb9\xd3\xc3\xb1\xbe\xb5\xd8\xc6\xab\xd2\xc6\xd6\xb5? / Continue with local offsets? (y/n): ";
+		std::cout << lang.console_fetch_offsets;
 		char choice = 'n';
 		std::cin >> choice;
-		if (choice != 'y' && choice != 'Y') {
-			LOG_INFO("Config", "User declined to use local offsets, exiting");
-			return;
+		if (choice == 'y' || choice == 'Y') {
+			LOG_INFO("Config", "User chose to fetch latest offsets from GitHub");
+			if (!remoteOffsets.empty() && !remoteClient.empty()) {
+				{
+					std::ofstream ofs("data/offsets.json");
+					if (ofs) ofs << remoteOffsets;
+				}
+				{
+					std::ofstream ofs("data/client_dll.json");
+					if (ofs) ofs << remoteClient;
+				}
+				offsets = remoteOffsets;
+				client = remoteClient;
+				LOG_INFO("Config", "Latest offsets written to local files");
+			} else {
+				LOG_WARNING("Config", "Remote offsets not available, cannot update");
+			}
+		} else {
+			LOG_INFO("Config", "User chose to continue with local offsets");
 		}
-		LOG_INFO("Config", "User confirmed to use local offsets");
 	}
 	// --- End unified validation ---
 
@@ -415,4 +391,8 @@ void main(HMODULE module) {
 	{
 		Gui.NewWindow("CS2DMA", Vec2((float)MenuConfig::RenderWidth, (float)MenuConfig::RenderHeight), Cheats::Run);
 	}
+
+	// Session ended — upload log before exit
+	Telemetry::UploadSessionLog();
+	Logger::Get().Shutdown();
 }

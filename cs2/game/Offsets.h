@@ -37,11 +37,9 @@ namespace Offset
 	inline DWORD MapName;
 	inline DWORD angEyeAngles;
 	inline DWORD vecLastClipCameraPos;
-	inline DWORD pClippingWeapon;
 	inline DWORD iShotsFired;
 	inline DWORD flFlashDuration;
 	inline DWORD aimPunchAngle;
-	inline DWORD aimPunchCache;
 	inline DWORD iIDEntIndex;
 	inline DWORD iTeamNum;
 	inline DWORD CameraServices;
@@ -65,12 +63,11 @@ namespace Offset
 	// Weapon list
 	inline DWORD WeaponServices;
 	inline DWORD MyWeapons;
+	inline DWORD ActiveWeapon;
 
 	// Entity identity (for projectile scanning)
 	inline DWORD EntityIdentity;         // CEntityInstance::m_pEntity
 	inline DWORD DesignerName;           // CEntityIdentity::m_designerName
-	inline DWORD HighestEntityIndex;     // dwGameEntitySystem_highestEntityIndex
-
 	// Observer (spectator detection)
 	inline DWORD ObserverServices;        // C_BasePlayerPawn::m_pObserverServices
 	inline DWORD ObserverMode;             // CPlayer_ObserverServices::m_iObserverMode

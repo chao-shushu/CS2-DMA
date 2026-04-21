@@ -73,7 +73,7 @@ public:
 	{
 		return sqrtf(powf(x, 2) + powf(y, 2));
 	}
-	float DistanceTo(const Vec2& Pos)
+	float DistanceTo(const Vec2& Pos) const
 	{
 		return sqrtf(powf(Pos.x - x, 2) + powf(Pos.y - y, 2));
 	}
@@ -122,7 +122,7 @@ public:
 	{
 		return sqrtf(powf(x, 2) + powf(y, 2) + powf(z, 2));
 	}
-	float DistanceTo(const Vec3& Pos)
+	float DistanceTo(const Vec3& Pos) const
 	{
 		return sqrtf(powf(Pos.x - x, 2) + powf(Pos.y - y, 2) + powf(Pos.z - z, 2));
 	}

@@ -2,6 +2,7 @@
 
 #include "../render/GrenadeHelper.h"
 #include "MenuConfig.h"
+#include "../config/ConfigSaver.h"
 #include "../utils/Logger.h"
 
 #include <winnt.h>
@@ -246,12 +247,14 @@ VOID DataThread()
 					continue;
 				}
 
+				int scanCount = MAX_ENTITIES;
+
 				// Scatter-read entity addresses at once
 				DWORD64 entityAddresses[MAX_ENTITIES]{};
 				{
 					VMMDLL_SCATTER_HANDLE addrHandle = ProcessMgr.CreateScatterHandle();
 					if (!addrHandle) continue;
-					for (int i = 0; i < MAX_ENTITIES; i++)
+					for (int i = 0; i < scanCount; i++)
 						ProcessMgr.AddScatterReadRequest(addrHandle, listEntry + (i + 1) * 0x70, &entityAddresses[i], sizeof(DWORD64));
 					ProcessMgr.ExecuteReadScatter(addrHandle);
 					VMMDLL_Scatter_CloseHandle(addrHandle);
@@ -262,12 +265,18 @@ VOID DataThread()
 				newCache.reserve(MAX_ENTITIES);
 				localPlayerIndex = -1;
 
+				// Build address→index map for O(1) lookups into old cache
+				std::unordered_map<DWORD64, size_t> oldCacheMap;
+				oldCacheMap.reserve(entityCache.size() * 2);
+				for (size_t ci = 0; ci < entityCache.size(); ci++)
+					oldCacheMap[entityCache[ci].controllerAddr] = ci;
+
 				// Identify entities needing refresh vs cached
 				struct { int health; int armor; int isAlive; int teamID; DWORD pawn; char name[MAX_PATH]; } ctrlBuf[MAX_ENTITIES]{};
 				int refreshSlots[MAX_ENTITIES]{};
 				int refreshCount = 0;
 
-				for (int i = 0; i < MAX_ENTITIES; i++) {
+				for (int i = 0; i < scanCount; i++) {
 					DWORD64 entityAddr = entityAddresses[i];
 					if (entityAddr == 0) continue;
 					if (entityAddr == localControllerAddr) {
@@ -275,13 +284,9 @@ VOID DataThread()
 						continue;
 					}
 
-					CachedEntity* existing = nullptr;
-					for (auto& ce : entityCache) {
-						if (ce.controllerAddr == entityAddr) { existing = &ce; break; }
-					}
-
-					if (existing && !controllerRefresh) {
-						newCache.push_back(*existing);
+					auto it = oldCacheMap.find(entityAddr);
+					if (it != oldCacheMap.end() && !controllerRefresh) {
+						newCache.push_back(entityCache[it->second]);
 					} else {
 						refreshSlots[refreshCount++] = i;
 					}
@@ -407,17 +412,16 @@ VOID DataThread()
 						ce.entity = ent;
 
 						// Carry over WR extra data from previous cache to avoid flicker
-						for (const auto& old : entityCache) {
-							if (old.controllerAddr == entityAddresses[i]) {
-								ce.entity.Controller.Money = old.entity.Controller.Money;
-								ce.entity.Controller.Color = old.entity.Controller.Color;
-								ce.entity.Pawn.HasHelmet = old.entity.Pawn.HasHelmet;
-								ce.entity.Pawn.HasDefuser = old.entity.Pawn.HasDefuser;
-								ce.entity.Pawn.ModelName = old.entity.Pawn.ModelName;
-								ce.entity.Pawn.WeaponName = old.entity.Pawn.WeaponName;
-								ce.entity.Pawn.WeaponList = old.entity.Pawn.WeaponList;
-								break;
-							}
+						auto oldIt = oldCacheMap.find(entityAddresses[i]);
+						if (oldIt != oldCacheMap.end()) {
+							const auto& old = entityCache[oldIt->second];
+							ce.entity.Controller.Money = old.entity.Controller.Money;
+							ce.entity.Controller.Color = old.entity.Controller.Color;
+							ce.entity.Pawn.HasHelmet = old.entity.Pawn.HasHelmet;
+							ce.entity.Pawn.HasDefuser = old.entity.Pawn.HasDefuser;
+							ce.entity.Pawn.ModelName = old.entity.Pawn.ModelName;
+							ce.entity.Pawn.WeaponName = old.entity.Pawn.WeaponName;
+							ce.entity.Pawn.WeaponList = old.entity.Pawn.WeaponList;
 						}
 
 						newCache.push_back(ce);
@@ -425,24 +429,21 @@ VOID DataThread()
 
 					// Retain dead entities from previous cache for WebRadar continuity.
 					// Without this, C4 killing everyone → empty cache → empty m_players → "waiting for data".
+					// Build set of addresses already in newCache for O(1) lookup
+					std::unordered_map<DWORD64, bool> newCacheAddrs;
+					for (const auto& nc : newCache)
+						newCacheAddrs[nc.controllerAddr] = true;
+
 					for (int r = 0; r < refreshCount; r++) {
 						int i = refreshSlots[r];
 						DWORD64 addr = entityAddresses[i];
-						// Skip if already added (alive and resolved above)
-						bool alreadyAdded = false;
-						for (const auto& nc : newCache) {
-							if (nc.controllerAddr == addr) { alreadyAdded = true; break; }
-						}
-						if (alreadyAdded) continue;
-						// Carry forward from old cache with health zeroed
-						for (const auto& old : entityCache) {
-							if (old.controllerAddr == addr) {
-								CachedEntity copy = old;
-								copy.entity.Pawn.Health = 0;
-								copy.entity.Controller.Health = 0;
-								newCache.push_back(copy);
-								break;
-							}
+						if (newCacheAddrs.count(addr)) continue;
+						auto oldIt2 = oldCacheMap.find(addr);
+						if (oldIt2 != oldCacheMap.end()) {
+							CachedEntity copy = entityCache[oldIt2->second];
+							copy.entity.Pawn.Health = 0;
+							copy.entity.Controller.Health = 0;
+							newCache.push_back(copy);
 						}
 					}
 				}
@@ -1319,8 +1320,11 @@ VOID DataThread()
 				Cheats::Snapshot.Spectators = std::move(spectators);
 			}
 		}
+		catch (const std::exception& e) {
+			LOG_ERROR("Data", "DataThread exception: {}", e.what());
+		}
 		catch (...) {
-			// Swallow — last_good_snapshot is preserved
+			LOG_ERROR("Data", "DataThread unknown exception");
 		}
 	}
 }
@@ -1365,7 +1369,12 @@ VOID SlowUpdateThread()
 
 			Sleep(10000);
 		}
+		catch (const std::exception& e) {
+			LOG_ERROR("SlowUpdate", "Exception: {}", e.what());
+			Sleep(5000);
+		}
 		catch (...) {
+			LOG_ERROR("SlowUpdate", "Unknown exception");
 			Sleep(5000);
 		}
 	}
@@ -1380,7 +1389,23 @@ VOID KeysCheckThread()
 	while (true)
 	{
 		Sleep(10);
-		Keys::MenuKey = ProcessMgr.is_key_down(VK_F8);
+		Keys::MenuKey = ProcessMgr.is_key_down(MenuConfig::MenuHotKey);
+
+		// Menu hotkey listening (same pattern as GrenadeHelper)
+		if (MenuConfig::IsListeningForMenuKey) {
+			for (int vk = 0x08; vk <= 0xFE; vk++) {
+				if (vk >= 0x01 && vk <= 0x06) continue;
+				if (GetAsyncKeyState(vk) & 0x8000) {
+					MenuConfig::MenuHotKey = vk;
+					strcpy_s(MenuConfig::MenuHotKeyName, GrenadeHelper::GetKeyName(vk));
+					MenuConfig::IsListeningForMenuKey = false;
+					MyConfigSaver::MarkDirty();
+					break;
+				}
+			}
+			if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+				MenuConfig::IsListeningForMenuKey = false;
+		}
 
 		bool recordKeyPressed = ProcessMgr.is_key_down(GrenadeHelper::RecordHotKey);
 

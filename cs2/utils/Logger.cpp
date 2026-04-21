@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "Telemetry.h"
 
 #include <iostream>
 #include <sstream>
@@ -79,6 +80,8 @@ void Logger::Init(const std::string& logDir)
     }
 
     m_Initialized.store(true);
+
+    Telemetry::SetLogFilePath(m_FilePath);
 
     if (m_File.is_open())
     {

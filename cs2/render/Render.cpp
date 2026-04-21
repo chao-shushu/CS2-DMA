@@ -65,7 +65,7 @@ namespace Render
 
 
 
-	void DrawDistance(const CEntity& LocalEntity, CEntity& Entity, ImVec4 Rect)
+	void DrawDistance(const CEntity& LocalEntity, const CEntity& Entity, ImVec4 Rect)
 
 	{
 

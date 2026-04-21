@@ -151,6 +151,11 @@ namespace MenuConfig
 	inline bool    CrosshairOnEnemyColor = true;
 	inline ImColor CrosshairEnemyColor = ImColor(255, 0, 0, 255);
 
+	// ======== Menu Hotkey ========
+	inline int   MenuHotKey = VK_F8;
+	inline char  MenuHotKeyName[32] = "F8";
+	inline bool  IsListeningForMenuKey = false;
+
 	// ======== Spectator List ========
 	inline bool  ShowSpectatorList = false;
 

@@ -20,7 +20,7 @@ namespace Render
 
 	void LineToEnemy(ImVec4 Rect, ImColor Color, float Thickness);
 	void DrawFov(const CEntity& LocalEntity, float Size, ImColor Color, float Thickness);
-	void DrawDistance(const CEntity& LocalEntity, CEntity& Entity, ImVec4 Rect);
+	void DrawDistance(const CEntity& LocalEntity, const CEntity& Entity, ImVec4 Rect);
 
 	ImVec4 Get2DBox(const CEntity& Entity);
 

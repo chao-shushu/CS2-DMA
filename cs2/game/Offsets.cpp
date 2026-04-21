@@ -41,11 +41,10 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 		Offset::GlobalVars = SafeGetUint64(clientDll, "dwGlobalVars");
 		Offset::PlantedC4 = SafeGetUint64(clientDll, "dwPlantedC4");
 		Offset::WeaponC4 = SafeGetUint64(clientDll, "dwWeaponC4");
-		Offset::HighestEntityIndex = SafeGetUint64(clientDll, "dwGameEntitySystem_highestEntityIndex");
-		LOG_DEBUG("Offsets", "client.dll: EntityList=0x{:X} Matrix=0x{:X} LocalCtrl=0x{:X} LocalPawn=0x{:X} GlobalVars=0x{:X} PlantedC4=0x{:X} WeaponC4=0x{:X}",
+		LOG_INFO("Offsets", "client.dll: EntityList=0x{:X} Matrix=0x{:X} LocalCtrl=0x{:X} LocalPawn=0x{:X} GlobalVars=0x{:X} PlantedC4=0x{:X} WeaponC4=0x{:X}",
 			Offset::EntityList, Offset::Matrix, Offset::LocalPlayerController, Offset::LocalPlayerPawn, Offset::GlobalVars, Offset::PlantedC4, Offset::WeaponC4);
 	} else {
-		LOG_DEBUG("Offsets", "client.dll section NOT FOUND in offsets.json");
+		LOG_INFO("Offsets", "client.dll section NOT FOUND in offsets.json");
 	}
 
 	// Parse offsets.json - matchmaking.dll (optional)
@@ -68,7 +67,7 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::GameSceneNode = SafeGetUint64(fields, "m_pGameSceneNode");
 			Offset::fFlags = SafeGetUint64(fields, "m_fFlags");
 			Offset::OwnerEntity = SafeGetUint64(fields, "m_hOwnerEntity");
-			LOG_DEBUG("Offsets", "C_BaseEntity: Health=0x{:X} TeamID=0x{:X} GameSceneNode=0x{:X} fFlags=0x{:X}",
+			LOG_INFO("Offsets", "C_BaseEntity: Health=0x{:X} TeamID=0x{:X} GameSceneNode=0x{:X} fFlags=0x{:X}",
 				Offset::Health, Offset::TeamID, Offset::GameSceneNode, Offset::fFlags);
 		}
 
@@ -80,7 +79,7 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::MoneyService = SafeGetUint64(fields, "m_pInGameMoneyServices");
 			Offset::PlayerPawn = SafeGetUint64(fields, "m_hPlayerPawn");
 			Offset::CompTeammateColor = SafeGetUint64(fields, "m_iCompTeammateColor");
-			LOG_DEBUG("Offsets", "CCSPlayerController: Armor=0x{:X} IsAlive=0x{:X} PlayerPawn=0x{:X} MoneyService=0x{:X}",
+			LOG_INFO("Offsets", "CCSPlayerController: Armor=0x{:X} IsAlive=0x{:X} PlayerPawn=0x{:X} MoneyService=0x{:X}",
 				Offset::Armor, Offset::IsAlive, Offset::PlayerPawn, Offset::MoneyService);
 		}
 
@@ -98,6 +97,7 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 			Offset::ItemServices = SafeGetUint64(fields, "m_pItemServices");
 			Offset::WeaponServices = SafeGetUint64(fields, "m_pWeaponServices");
 			Offset::ObserverServices = SafeGetUint64(fields, "m_pObserverServices");
+			Offset::vecLastClipCameraPos = SafeGetUint64(fields, "m_vecLastCameraSetupLocalOrigin");
 		}
 
 		// CPlayer_ObserverServices
@@ -111,21 +111,19 @@ bool Offset::UpdateOffsets(std::string offsetdata, std::string clientdata)
 		if (classes.HasMember("CPlayer_WeaponServices") && classes["CPlayer_WeaponServices"].HasMember("fields")) {
 			const auto& fields = classes["CPlayer_WeaponServices"]["fields"];
 			Offset::MyWeapons = SafeGetUint64(fields, "m_hMyWeapons");
+			Offset::ActiveWeapon = SafeGetUint64(fields, "m_hActiveWeapon");
 		}
 
 		// C_CSPlayerPawn
 		if (classes.HasMember("C_CSPlayerPawn") && classes["C_CSPlayerPawn"].HasMember("fields")) {
 			const auto& fields = classes["C_CSPlayerPawn"]["fields"];
 			Offset::angEyeAngles = SafeGetUint64(fields, "m_angEyeAngles");
-			Offset::vecLastClipCameraPos = SafeGetUint64(fields, "m_vecLastClipCameraPos");
-			Offset::pClippingWeapon = SafeGetUint64(fields, "m_pClippingWeapon");
 			Offset::iShotsFired = SafeGetUint64(fields, "m_iShotsFired");
 			Offset::aimPunchAngle = SafeGetUint64(fields, "m_aimPunchAngle");
-			Offset::aimPunchCache = SafeGetUint64(fields, "m_aimPunchCache");
 			Offset::iIDEntIndex = SafeGetUint64(fields, "m_iIDEntIndex");
 			Offset::PawnArmor = SafeGetUint64(fields, "m_ArmorValue");
-			LOG_DEBUG("Offsets", "C_CSPlayerPawn: EyeAngles=0x{:X} CameraPos=0x{:X} ClipWeapon=0x{:X} PawnArmor=0x{:X}",
-				Offset::angEyeAngles, Offset::vecLastClipCameraPos, Offset::pClippingWeapon, Offset::PawnArmor);
+			LOG_DEBUG("Offsets", "C_CSPlayerPawn: EyeAngles=0x{:X} PawnArmor=0x{:X}",
+				Offset::angEyeAngles, Offset::PawnArmor);
 
 			// Calculate bSpottedByMask
 			uint64_t m_entitySpottedState = SafeGetUint64(fields, "m_entitySpottedState");

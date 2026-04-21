@@ -423,6 +423,24 @@ static void DrawTab_Settings() {
 	}
 
 	if (ImGui::CollapsingHeader(lang.header_system.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		// Menu hotkey
+		ImGui::Text("%s:", lang.settings_menuhotkey.c_str());
+		ImGui::SameLine();
+		if (MenuConfig::IsListeningForMenuKey) {
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.9f, 0.3f, 0.3f, 0.9f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
+			ImGui::Button(lang.grenade_pressanykey.c_str(), ImVec2(130, 0));
+			ImGui::PopStyleColor(3);
+		} else {
+			if (ImGui::Button(MenuConfig::MenuHotKeyName, ImVec2(130, 0))) {
+				MenuConfig::IsListeningForMenuKey = true;
+			}
+		}
+		ImGui::SameLine();
+		ImGui::TextColored(ImVec4(0.78f, 0.78f, 0.4f, 1.0f), "%s", lang.grenade_hotkeytip.c_str());
+
+		ImGui::Spacing();
 		Gui.MyCheckBox(lang.settings_perfmonitor.c_str(), &MenuConfig::ShowPerfMonitor);
 
 		ImGui::Spacing();

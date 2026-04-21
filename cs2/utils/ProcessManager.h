@@ -22,7 +22,7 @@
 
 
 
-#define _is_invalid(v) if(v==NULL) return false
+#define _is_invalid_ret(v) if(v==NULL) return false
 
 #define _is_invalid(v,n) if(v==NULL) return n
 
@@ -174,10 +174,6 @@ private:
 
 
 
-	DWORD  ProcessID2 = 0;
-
-
-
 public:
 
 	std::string AttachProcessName;
@@ -194,7 +190,19 @@ public:
 
 	{
 
+		// Only close VMM handle if no longer attached (threads stopped).
 
+		// If still attached, threads may be using the handle — closing it
+
+		// would cause use-after-free. The OS will clean up on process exit.
+
+		if (this->HANDLE && !Attached) {
+
+			VMMDLL_Close(this->HANDLE);
+
+			this->HANDLE = nullptr;
+
+		}
 
 	}
 
@@ -466,7 +474,7 @@ public:
 
 	template <typename T>
 
-	T ReadMemoryExtra(uintptr_t address, DWORD pid = ProcessID2, bool cache = false, const DWORD size = sizeof(T))
+	T ReadMemoryExtra(uintptr_t address, DWORD pid, bool cache = false, const DWORD size = sizeof(T))
 
 	{
 

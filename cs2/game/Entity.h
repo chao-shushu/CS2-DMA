@@ -51,7 +51,6 @@ public:
 	std::string WeaponName;
 	DWORD ShotsFired;
 	Vec2 AimPunchAngle;
-	C_UTL_VECTOR AimPunchCache;
 	int Health;
 	int Armor = 0;
 	int TeamID;
@@ -74,7 +73,6 @@ public:
 	bool GetFov();
 	bool GetSpotted();
 	bool GetFFlags();
-	bool GetAimPunchCache();
 
 	constexpr bool HasFlag(const Flags Flag) const noexcept {
 		return fFlags & (int)Flag;

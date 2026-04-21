@@ -90,10 +90,6 @@ bool CEntity::UpdatePawn(const DWORD64& PlayerPawnAddress)
 		LOG_TRACE("Entity", "Pawn GetFFlags FAIL");
 		return false;
 	}
-	if (!this->Pawn.GetAimPunchCache()) {
-		LOG_TRACE("Entity", "Pawn GetAimPunchCache FAIL");
-		return false;
-	}
 
 	if (!this->Pawn.BoneData.UpdateAllBoneData(PlayerPawnAddress)) {
 		LOG_TRACE("Entity", "Pawn UpdateAllBoneData FAIL");
@@ -163,21 +159,32 @@ bool PlayerPawn::GetSpotted()
 bool PlayerPawn::GetWeaponName()
 {
 	try {
-		DWORD64 WeaponNameAddress = 0;
-		char Buffer[MAX_PATH]{};
-		WeaponNameAddress = ProcessMgr.TraceAddress(this->Address + Offset::pClippingWeapon, { 0x10, 0x20 ,0x0 });
-		if (WeaponNameAddress == 0) {
-			// Silent fail - normal when spectating or no weapon equipped
+		DWORD64 WeaponServicesPtr = 0;
+		DWORD ActiveWeaponHandle = 0;
+		if (!ProcessMgr.ReadMemory<DWORD64>(Address + Offset::WeaponServices, WeaponServicesPtr) || WeaponServicesPtr == 0) {
+			WeaponName = "Weapon_None";
+			return true;
+		}
+		if (!ProcessMgr.ReadMemory<DWORD>(WeaponServicesPtr + Offset::ActiveWeapon, ActiveWeaponHandle) || ActiveWeaponHandle == 0) {
 			WeaponName = "Weapon_None";
 			return true;
 		}
 
+		DWORD64 WeaponNameAddress = 0;
+		char Buffer[MAX_PATH]{};
+		WeaponNameAddress = ProcessMgr.TraceAddress(gGame.GetEntityListAddress(), { 0x10, 8 * ((ActiveWeaponHandle & 0x7FFF) >> 9), 0x70 * (ActiveWeaponHandle & 0x1FF), 0x10, 0x20, 0x0 });
+		if (WeaponNameAddress == 0) {
+			WeaponName = "Weapon_None";
+			return true;
+		}
 
 		if (!ProcessMgr.ReadMemory(WeaponNameAddress, Buffer, MAX_PATH)) {
 			return false;
 		}
 
-		if (!memchr(Buffer, 0, MAX_PATH) || strlen(Buffer) == 0) {
+		if (!memchr(Buffer, 0, MAX_PATH))
+			WeaponName = "Weapon_None";
+		else if (strlen(Buffer) == 0) {
 			WeaponName = "Weapon_None";
 		}
 		else {
@@ -195,7 +202,6 @@ bool PlayerPawn::GetWeaponName()
 		return true;
 	}
 	catch (const std::exception& ex) {
-		//std::cout << ex.what() << std::endl;
 		WeaponName = "Weapon_None";
 		return true;
 	}
@@ -214,11 +220,6 @@ bool PlayerPawn::GetAimPunchAngle()
 bool PlayerPawn::GetTeamID()
 {
 	return GetDataAddressWithOffset<int>(Address, Offset::iTeamNum, this->TeamID);
-}
-
-bool PlayerPawn::GetAimPunchCache()
-{
-	return GetDataAddressWithOffset<C_UTL_VECTOR>(Address, Offset::aimPunchCache, this->AimPunchCache);
 }
 
 DWORD64 PlayerController::GetPlayerPawnAddress()

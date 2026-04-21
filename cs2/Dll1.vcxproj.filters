@@ -41,9 +41,6 @@
     <ClCompile Include="game\Game.cpp">
       <Filter>game</Filter>
     </ClCompile>
-    <ClCompile Include="game\GlobalVars.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="game\Offsets.cpp">
       <Filter>game</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
       <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="game\Game.h">
-      <Filter>game</Filter>
-    </ClInclude>
-    <ClInclude Include="game\GlobalVars.h">
       <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="game\MemoryHelper.h">

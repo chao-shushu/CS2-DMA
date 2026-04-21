@@ -48,6 +48,9 @@ external/webradar/webapp/node_modules/
 # === Distribution (dev only) ===
 dist/
 
+# === Beta telemetry secrets (DO NOT commit) ===
+cs2/utils/TelemetryToken.h
+
 
 # === OS / Misc ===
 Thumbs.db

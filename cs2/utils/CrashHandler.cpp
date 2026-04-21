@@ -1,5 +1,6 @@
 #include "CrashHandler.h"
 #include "Logger.h"
+#include "Telemetry.h"
 
 #include <iostream>
 #include <fstream>
@@ -507,6 +508,10 @@ LONG WINAPI CrashHandler::SehFilter(EXCEPTION_POINTERS* pExInfo)
             logPath.c_str(),
             dmpPath.c_str(), dmpOk ? "OK" : "FAILED");
 
+    // Upload crash files to telemetry (before MessageBox blocks)
+    Telemetry::SetCrashFiles(logPath, dmpOk ? dmpPath : "");
+    Telemetry::UploadCrashFiles();
+
     // MessageBox
     char msg[512];
     snprintf(msg, sizeof(msg),
@@ -534,6 +539,10 @@ void CrashHandler::TerminateHandler()
         fs::create_directories(g_CrashDir);
 
     WriteCrashReport(logPath, nullptr);
+
+    // Upload crash files to telemetry
+    Telemetry::SetCrashFiles(logPath, "");
+    Telemetry::UploadCrashFiles();
 
     fprintf(stderr,
             "\n\033[38;5;196m"
