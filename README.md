@@ -30,6 +30,8 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Safe Zone** — Crosshair area ESP cutout to reduce visual clutter
 - **Spectator List** — Detect who is spectating you, show spectator name, team color, and spectate mode ([Eye]/[Chase]/[Roam])
 <img width="827" height="524" alt="image" src="https://github.com/user-attachments/assets/6589c93a-007a-467f-966b-6b6126f92d60" />
+<img width="1905" height="721" alt="image" src="https://github.com/user-attachments/assets/1481cf2b-075c-40dd-a895-a9cde3d9bf9d" />
+
 
 ### Crosshair Overlay (Fusion Tab)
 - 4 crosshair styles: Cross / Dot / Circle / Cross+Dot
@@ -41,11 +43,15 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - Planted / Carried / Dropped / Defusing status display
 - Explosion and defuse countdown timers
 <img width="837" height="517" alt="image" src="https://github.com/user-attachments/assets/8f7d1785-b21e-41a5-80e2-ebd7e122f4aa" />
+<img width="969" height="554" alt="image" src="https://github.com/user-attachments/assets/e9cd275e-eed7-4f2f-b860-6d9041a4253c" />
+
 
 ### Projectile ESP
 - Real-time display of in-flight flashbangs, smokes, HE grenades, molotovs, and decoys
 - Explosion/effect radius circle rendering
 <img width="838" height="523" alt="image" src="https://github.com/user-attachments/assets/79e82266-5a15-4029-ab8e-b7b8fa647302" />
+<img width="1874" height="701" alt="image" src="https://github.com/user-attachments/assets/ca3c1dbe-4044-4bd9-b57f-d39eddd66ca5" />
+
 
 ### Web Radar
 - Built-in WebSocket server
