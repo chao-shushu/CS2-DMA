@@ -34,6 +34,7 @@ private:
 	void AcceptLoop();
 	void ClientLoop(SOCKET clientSock);
 	bool DoHandshake(SOCKET clientSock);
+	bool DoHandshakeWithRequest(SOCKET clientSock, const std::string& request);
 	bool SendFrame(SOCKET sock, const std::string& payload);
 	void RemoveClient(SOCKET sock);
 

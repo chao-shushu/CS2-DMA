@@ -6,9 +6,9 @@
 
 // Current software version (must match GitHub Release tag format)
 #ifdef BETA_TELEMETRY
-constexpr const char* PROJECT_VERSION = "1.1.1-beta";
+constexpr const char* PROJECT_VERSION = "1.1.5-beta";
 #else
-constexpr const char* PROJECT_VERSION = "1.1.1";
+constexpr const char* PROJECT_VERSION = "1.1.5";
 #endif
 
 enum class AppState {

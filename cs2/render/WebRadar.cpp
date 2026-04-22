@@ -14,6 +14,67 @@
 #include <algorithm>
 #include <cstring>
 #include <shared_mutex>
+#include <fstream>
+
+// ============================================================================
+//  Static webapp directory (set by FindWebappDir, used by ServeStaticFile)
+// ============================================================================
+
+static std::string g_webappDir;
+
+static std::string GetMimeType(const std::string& path) {
+	auto dot = path.rfind('.');
+	if (dot == std::string::npos) return "application/octet-stream";
+	std::string ext = path.substr(dot + 1);
+	if (ext == "html" || ext == "htm") return "text/html; charset=utf-8";
+	if (ext == "css") return "text/css; charset=utf-8";
+	if (ext == "js" || ext == "mjs") return "application/javascript; charset=utf-8";
+	if (ext == "json") return "application/json; charset=utf-8";
+	if (ext == "png") return "image/png";
+	if (ext == "jpg" || ext == "jpeg") return "image/jpeg";
+	if (ext == "svg") return "image/svg+xml";
+	if (ext == "ico") return "image/x-icon";
+	if (ext == "woff" || ext == "woff2") return "font/woff2";
+	if (ext == "ttf") return "font/ttf";
+	return "application/octet-stream";
+}
+
+static bool ServeStaticFile(SOCKET clientSock, const std::string& httpPath) {
+	if (g_webappDir.empty()) return false;
+
+	// Sanitize path: no ".." traversal
+	if (httpPath.find("..") != std::string::npos) return false;
+
+	std::string filePath = g_webappDir;
+	// Map / to /index.html
+	if (httpPath == "/" || httpPath.empty())
+		filePath += "\\index.html";
+	else {
+		std::string rel = httpPath;
+		for (auto& c : rel) if (c == '/') c = '\\';
+		filePath += rel;
+	}
+
+	std::ifstream file(filePath, std::ios::binary);
+	if (!file.is_open()) return false;
+
+	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+
+	std::string mime = GetMimeType(filePath);
+	std::string header =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: " + mime + "\r\n"
+		"Content-Length: " + std::to_string(content.size()) + "\r\n"
+		"Connection: close\r\n"
+		"Access-Control-Allow-Origin: *\r\n"
+		"\r\n";
+
+	send(clientSock, header.c_str(), (int)header.size(), 0);
+	send(clientSock, content.c_str(), (int)content.size(), 0);
+	LOG_TRACE("WebRadar", "Served {} ({} bytes, {})", httpPath, content.size(), mime);
+	return true;
+}
 
 // ============================================================================
 //  Minimal SHA-1 (RFC 3174) — only used for the WebSocket handshake key.
@@ -201,8 +262,61 @@ void WebRadarServer::AcceptLoop() {
 	}
 }
 
+bool WebRadarServer::DoHandshakeWithRequest(SOCKET clientSock, const std::string& request) {
+	LOG_DEBUG("WebRadar", "Handshake: received {} bytes", request.size());
+
+	// Extract Sec-WebSocket-Key
+	auto keyPos = request.find("Sec-WebSocket-Key:");
+	if (keyPos == std::string::npos) return false;
+	keyPos = request.find(':', keyPos) + 1;
+	while (keyPos < request.size() && request[keyPos] == ' ') keyPos++;
+	auto keyEnd = request.find("\r\n", keyPos);
+	if (keyEnd == std::string::npos) return false;
+	std::string wsKey = request.substr(keyPos, keyEnd - keyPos);
+
+	// Compute Sec-WebSocket-Accept per RFC 6455
+	std::string acceptHash = sha1(wsKey + WS_GUID);
+	std::string acceptB64 = base64_encode_raw(acceptHash);
+
+	std::string response =
+		"HTTP/1.1 101 Switching Protocols\r\n"
+		"Upgrade: websocket\r\n"
+		"Connection: Upgrade\r\n"
+		"Sec-WebSocket-Accept: " + acceptB64 + "\r\n"
+		"\r\n";
+
+	LOG_DEBUG("WebRadar", "Handshake: sending 101 response ({} bytes)", response.size());
+	return send(clientSock, response.c_str(), (int)response.size(), 0) > 0;
+}
+
 void WebRadarServer::ClientLoop(SOCKET clientSock) {
-	if (!DoHandshake(clientSock)) {
+	// Peek at the request to determine if it's HTTP or WebSocket
+	char buf[4096];
+	int received = recv(clientSock, buf, sizeof(buf) - 1, 0);
+	if (received <= 0) { closesocket(clientSock); return; }
+	buf[received] = '\0';
+	std::string request(buf, received);
+
+	// If not a WebSocket upgrade, try serving static files
+	if (request.find("Upgrade:") == std::string::npos) {
+		// Extract the HTTP path from GET line
+		auto pathStart = request.find(' ');
+		if (pathStart != std::string::npos) {
+			auto pathEnd = request.find(' ', pathStart + 1);
+			if (pathEnd != std::string::npos) {
+				std::string httpPath = request.substr(pathStart + 1, pathEnd - pathStart - 1);
+				if (!ServeStaticFile(clientSock, httpPath)) {
+					std::string resp = "HTTP/1.1 404 Not Found\r\nContent-Length: 9\r\nConnection: close\r\n\r\nNot Found";
+					send(clientSock, resp.c_str(), (int)resp.size(), 0);
+				}
+			}
+		}
+		closesocket(clientSock);
+		return;
+	}
+
+	// WebSocket handshake using the already-read data
+	if (!DoHandshakeWithRequest(clientSock, request)) {
 		closesocket(clientSock);
 		return;
 	}
@@ -275,38 +389,8 @@ bool WebRadarServer::DoHandshake(SOCKET clientSock) {
 	int received = recv(clientSock, buf, sizeof(buf) - 1, 0);
 	if (received <= 0) return false;
 	buf[received] = '\0';
-
 	std::string request(buf, received);
-
-	LOG_DEBUG("WebRadar", "Handshake: received {} bytes", received);
-	// Must be a WebSocket upgrade
-	if (request.find("Upgrade:") == std::string::npos) {
-		LOG_DEBUG("WebRadar", "Handshake: not a WebSocket upgrade request");
-		return false;
-	}
-
-	// Extract Sec-WebSocket-Key
-	auto keyPos = request.find("Sec-WebSocket-Key:");
-	if (keyPos == std::string::npos) return false;
-	keyPos = request.find(':', keyPos) + 1;
-	while (keyPos < request.size() && request[keyPos] == ' ') keyPos++;
-	auto keyEnd = request.find("\r\n", keyPos);
-	if (keyEnd == std::string::npos) return false;
-	std::string wsKey = request.substr(keyPos, keyEnd - keyPos);
-
-	// Compute Sec-WebSocket-Accept per RFC 6455
-	std::string acceptHash = sha1(wsKey + WS_GUID);
-	std::string acceptB64 = base64_encode_raw(acceptHash);
-
-	std::string response =
-		"HTTP/1.1 101 Switching Protocols\r\n"
-		"Upgrade: websocket\r\n"
-		"Connection: Upgrade\r\n"
-		"Sec-WebSocket-Accept: " + acceptB64 + "\r\n"
-		"\r\n";
-
-	LOG_DEBUG("WebRadar", "Handshake: sending 101 response ({} bytes)", response.size());
-	return send(clientSock, response.c_str(), (int)response.size(), 0) > 0;
+	return DoHandshakeWithRequest(clientSock, request);
 }
 
 bool WebRadarServer::SendFrame(SOCKET sock, const std::string& payload) {
@@ -374,11 +458,21 @@ static std::string FindWebappDir() {
 	exeDir = exeDir.substr(0, exeDir.find_last_of("\\/"));
 
 	// Try known paths relative to exe
-	const char* candidates[] = {
-		"\\external\\webradar\\webapp",
+	// First: built dist directory (for Release distribution, no Node.js needed)
+	const char* distCandidates[] = {
 		"\\webapp",
 	};
-	for (auto rel : candidates) {
+	for (auto rel : distCandidates) {
+		std::string path = exeDir + rel;
+		if (GetFileAttributesA((path + "\\index.html").c_str()) != INVALID_FILE_ATTRIBUTES)
+			return path;
+	}
+
+	// Second: source directory (for development, needs Node.js + npx vite)
+	const char* srcCandidates[] = {
+		"\\external\\webradar\\webapp",
+	};
+	for (auto rel : srcCandidates) {
 		std::string path = exeDir + rel;
 		if (GetFileAttributesA((path + "\\package.json").c_str()) != INVALID_FILE_ATTRIBUTES)
 			return path;
@@ -386,12 +480,22 @@ static std::string FindWebappDir() {
 	return {};
 }
 
+static bool g_isDistDir = false;
+
 static void StartViteDevServer() {
 	if (g_viteProcess) return;
 
-	std::string webappDir = FindWebappDir();
-	if (webappDir.empty()) {
+	g_webappDir = FindWebappDir();
+	if (g_webappDir.empty()) {
 		LOG_ERROR("WebRadar", "Webapp directory not found, cannot start frontend");
+		return;
+	}
+
+	// If it's a dist directory (has index.html, no package.json),
+	// the built-in HTTP server will serve files — no Vite needed
+	g_isDistDir = (GetFileAttributesA((g_webappDir + "\\package.json").c_str()) == INVALID_FILE_ATTRIBUTES);
+	if (g_isDistDir) {
+		LOG_INFO("WebRadar", "Using built-in HTTP server for dist directory: {}", g_webappDir);
 		return;
 	}
 
@@ -412,14 +516,14 @@ static void StartViteDevServer() {
 	char cmd[] = "cmd /c npx vite --host";
 
 	if (CreateProcessA(nullptr, cmd, nullptr, nullptr, FALSE,
-		CREATE_NO_WINDOW | CREATE_SUSPENDED, nullptr, webappDir.c_str(), &si, &pi))
+		CREATE_NO_WINDOW | CREATE_SUSPENDED, nullptr, g_webappDir.c_str(), &si, &pi))
 	{
 		if (g_viteJob)
 			AssignProcessToJobObject(g_viteJob, pi.hProcess);
 		ResumeThread(pi.hThread);
 		g_viteProcess = pi.hProcess;
 		CloseHandle(pi.hThread);
-		LOG_INFO("WebRadar", "Vite dev server started (PID: {}, dir: {})", pi.dwProcessId, webappDir);
+		LOG_INFO("WebRadar", "Vite dev server started (PID: {}, dir: {})", pi.dwProcessId, g_webappDir);
 	} else {
 		LOG_ERROR("WebRadar", "Failed to start Vite: error {}", GetLastError());
 		if (g_viteJob) { CloseHandle(g_viteJob); g_viteJob = nullptr; }
