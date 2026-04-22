@@ -29,7 +29,7 @@
 - **安全区域** — 准心附近 ESP 裁切，减少视觉干扰
 - **观众列表** — 检测谁在观战你，显示观众名称、队伍颜色、观战模式（[Eye]/[Chase]/[Roam]）
 <img width="827" height="524" alt="image" src="https://github.com/user-attachments/assets/6589c93a-007a-467f-966b-6b6126f92d60" />
-
+<img width="1905" height="721" alt="image" src="https://github.com/user-attachments/assets/1481cf2b-075c-40dd-a895-a9cde3d9bf9d" />
 ### 准星覆盖层（融合器 Tab）
 - 4 种准星样式：十字 / 圆点 / 圆圈 / 十字+圆点
 - 可调臂长、粗细、间隙、颜色
@@ -40,11 +40,13 @@
 - 炸弹已安装 / 被携带 / 掉落 / 正在拆除状态显示
 - 爆炸倒计时与拆除倒计时
 <img width="837" height="517" alt="image" src="https://github.com/user-attachments/assets/8f7d1785-b21e-41a5-80e2-ebd7e122f4aa" />
+<img width="969" height="554" alt="image" src="https://github.com/user-attachments/assets/e9cd275e-eed7-4f2f-b860-6d9041a4253c" />
 
 ### 投掷物 ESP
 - 实时显示飞行中的闪光弹、烟雾弹、HE、燃烧弹、诱饵弹
 - 爆炸/效果范围圈渲染
 <img width="838" height="523" alt="image" src="https://github.com/user-attachments/assets/79e82266-5a15-4029-ab8e-b7b8fa647302" />
+<img width="1874" height="701" alt="image" src="https://github.com/user-attachments/assets/ca3c1dbe-4044-4bd9-b57f-d39eddd66ca5" />
 
 ### Web Radar（网页雷达）
 - 内嵌 WebSocket 服务器
