@@ -20,6 +20,8 @@ bool CGame::InitAddress()
 	LOG_DEBUG("Game", "Addresses: EntityList=0x{:X} Matrix=0x{:X} LocalCtrl=0x{:X} LocalPawn=0x{:X} GlobalVars=0x{:X}",
 		this->Address.EntityList, this->Address.Matrix, this->Address.LocalController, this->Address.LocalPawn, this->Address.GlobalVars);
 
+	UpdateEntityListEntry();
+
 	LOG_INFO("Game", "InitAddress: done (ClientDLL=0x{:X})", this->Address.ClientDLL);
 	return this->Address.ClientDLL != 0;
 }

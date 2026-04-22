@@ -182,7 +182,7 @@ VOID DataThread()
 			bool needBones = anyESPDraw;
 			bool needViewAngle = MenuConfig::ShowEyeRay || MenuConfig::ShowWebRadar || GrenadeHelper::Enabled;
 			bool needCameraPos = MenuConfig::ShowEyeRay;
-			bool needWeapon = MenuConfig::ShowWeaponESP || MenuConfig::ShowWebRadar;
+			bool needWeapon = MenuConfig::ShowWeaponESP || MenuConfig::ShowWebRadar || GrenadeHelper::Enabled;
 
 			// ------- 1. Read matrix -------
 			if (!ProcessMgr.ReadMemory(gGame.GetMatrixAddress(), matrix, 64)) {
