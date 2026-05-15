@@ -54,21 +54,16 @@ const App = () => {
   }, [settings]);
 
   useEffect(() => {
-    // Auto-detect protocol and host for WebSocket:
-    // - HTTPS page → wss://, HTTP page → ws://
-    // - window.location.host includes port only when non-standard
-    // - Works with Cloudflare tunnel, reverse proxies, and local access
-    const webSocketURL = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/cs2_webradar`;
-
+    // Always use secure WebSocket (wss://) for all connections
     let ws = null;
     let reconnectTimer = null;
     let disposed = false;
 
     const connect = () => {
       if (disposed) return;
-      console.info(`[WebRadar] connecting to ${webSocketURL} ...`);
+      console.info("[WebRadar] connecting ...");
 
-      try { ws = new WebSocket(webSocketURL); } catch (e) {
+      try { ws = new WebSocket(`wss://${window.location.host}/cs2_webradar`); } catch (e) {
         console.error("[WebRadar] WebSocket constructor error:", e);
         scheduleReconnect();
         return;
@@ -107,13 +102,17 @@ const App = () => {
 
           const map = parsedData.m_map;
           if (map !== "invalid" && map !== currentMapRef.current) {
+            if (!/^[a-zA-Z0-9_-]+$/.test(map)) {
+              console.error("[WebRadar] Invalid map name rejected");
+              return;
+            }
             currentMapRef.current = map;
             try {
               const mapJson = await (await fetch(`data/${map}/data.json`)).json();
               setMapData({ ...mapJson, name: map });
               document.body.style.backgroundImage = `url(./data/${map}/background.png)`;
             } catch (fetchErr) {
-              console.error(`[WebRadar] failed to load map data for ${map}:`, fetchErr);
+              console.error("[WebRadar] failed to load map data:", fetchErr);
             }
           }
         } catch (e) {
