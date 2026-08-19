@@ -4,18 +4,18 @@
 
 ![3feefde8e0a9558fad9e715bdb83c18c](https://github.com/user-attachments/assets/868af1fa-e5d1-4714-a7d9-ca4ba2f1a506)
 
-基于 DMA（Direct Memory Access）硬件的 CS2 外部工具，使用 C++ 开发，通过 FPGA 设备读取游戏内存，在独立副机上渲染 ESP、雷达、投掷物助手、自瞄等功能。开源版本为纯只读 DMA，不包含任何自瞄相关功能。
+基于 DMA（Direct Memory Access）硬件的 CS2 外部工具，使用 C++ 开发，通过 FPGA 设备读取游戏内存，在独立副机上渲染 ESP、雷达、投掷物助手、瞄准辅助等功能。开源版本为纯只读 DMA，不包含任何瞄准辅助相关功能。
 
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Visual Studio](https://img.shields.io/badge/IDE-Visual%20Studio%202026-5C2D91?logo=visual-studio\&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-1.5.0-blue)
+![Version](https://img.shields.io/badge/version-2.3.4-blue)
 
 > ⭐ 如果你喜欢本项目，请为仓库点亮 Star，支持作者持续更新！
 > 请加入 QQ 群：965428002，获取最新动态和帮助
 
-> **全功能版本**（含自瞄、TriggerBot、自动压枪等，基于 KMBox 硬件）：[立即购买](https://shop.95fk.net/shop/OJ3QCIOK)
+> **全功能版本**（含跟随人手、瞄准辅助、轨迹数据处理等，基于 KMBox 硬件）：[赞助获取](https://shop.95fk.net/shop/OJ3QCIOK)
 
 ***
 
@@ -47,7 +47,7 @@
 - **炸弹计时器覆盖层** - 可拖动的屏幕 C4 倒计时窗口，含拆弹进度条和拆弹器检测
 - **可见性着色** - 基于 VPK 地图几何 BVH 射线遮挡检测，按可见性对 ESP 元素双色着色（可见/被墙遮挡）
 
-<img width="1905" height="721" alt="image" src="https://github.com/user-attachments/assets/1481cf2b-075c-40dd-a895-a9cde3d9bf9d" />
+<img width="1905" height="721" alt="ESP" src="media/ESP截图.png" />
 
 ### 准星覆盖层
 
@@ -70,7 +70,7 @@
 
 <img width="1874" height="701" alt="image" src="https://github.com/user-attachments/assets/ca3c1dbe-4044-4bd9-b57f-d39eddd66ca5" />
 
-### Web Radar（网页雷达）
+### Web Radar（网页雷达，仅全功能版）
 
 - 内嵌 WebSocket 服务器（默认端口 22006，可在菜单中修改）
 - 前端资源已嵌入 cs2.exe，单文件部署，无需额外文件
@@ -91,7 +91,7 @@
 - **炸弹逃生箭头** - 炸弹安放时前端显示方向箭头，指示逃生路线
 - **二维码** - 菜单内二维码，方便手机快速扫码访问雷达 URL
 
-<img width="773" height="457" alt="image" src="https://github.com/user-attachments/assets/5fb4025a-d06b-4f2e-b81f-ba9b55281252" />
+<img width="773" height="457" alt="Web Radar" src="media/webradar截图.png" />
 
 ### Grenade Helper（投掷物助手）
 
@@ -104,7 +104,7 @@
 
 ### 快捷键（Hotkeys）
 
-- 15 种动作自定义按键绑定（方框/骨骼/血量/武器/名称/距离/视线/连线/炸弹/投掷物/队伍过滤/雷达/安全区/准星/重新获取数据）
+- 26 种动作自定义按键绑定（全功能版）/ 14 种（开源版），覆盖 ESP、雷达、瞄准辅助与功能开关
 - 双源按键检测：DMA（宿主机）+ `GetAsyncKeyState`（本机）
 - 配置持久化保存/加载
 
@@ -185,12 +185,13 @@ CS2-DMA/
 | Tab          | 功能                                                                                                       |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
 | **Visuals**  | 方框、骨骼、血条、护甲条、武器、武器图标、弹药、距离、名称、视线、连线、头部圆点、观众列表、玩家状态标志、可见性着色、声音/脚步 ESP、世界投掷物计时器、地上武器、炸弹计时器、准星覆盖层、安全区域、队伍过滤 |
-| **Radar**    | Web Radar 开关、端口、推送频率、局域网 URL 显示与复制、Cloudflare 隧道一键启停、二维码、雷达校准（旋转/缩放/偏移）、密码鉴权、Origin 白名单、运行时统计            |
+| **Radar**（全功能版） | Web Radar 开关、端口、推送频率、局域网 URL 显示与复制、Cloudflare 隧道一键启停、二维码、雷达校准（旋转/缩放/偏移）、密码鉴权、Origin 白名单、运行时统计            |
 | **Grenade**  | 投掷物助手开关、录制点位、编辑/删除、按地图加载预设                                                                               |
-| **Hotkeys**  | 15 种动作自定义按键绑定（ESP 开关、功能开关、重新获取数据）                                                                        |
+| **Hotkeys**  | 26 种按键绑定（全功能版）/ 14 种（开源版）：ESP 开关、功能开关、瞄准辅助开关、重新获取数据                                                      |
 | **Settings** | 帧率限制、VSync、渲染质量、显示器选择、分辨率、菜单热键、性能监控、调试统计、调试日志、玩家数健康检查、偏移值更新、帮助按钮                                         |
 | **Config**   | 配置文件的创建、保存、加载、删除                                                                                         |
 | **Contact**  | 联系作者、加入 QQ 群                                                                                             |
+| **Aimbot**（全功能版） | 跟随人手、瞄准辅助、目标响应、追踪、轨迹数据处理、FOV 圈、每武器细分参数                                                                      |
 
 ### 偏移量过期怎么办？
 
@@ -216,16 +217,18 @@ CS2 每次更新后游戏偏移量可能失效，表现为 ESP 不显示或数�
 
 开源版本为纯只读 DMA。以下功能包含在**全功能版本**中（基于 KMBox 等硬件实现，不开源），仅介绍功能：
 
-- **AimBot** - FOV 圈 / 平滑 / 骨骼选择（头/颈/胸/盆骨）/ 可见性检查 / 部位降级 / 目标切换延迟 / 6 类武器细分参数
-- **TriggerBot** - 自动开火（始终/按键模式、延迟、抖动、按住时长）
-- **Magnet TriggerBot** - 磁力吸附（纯自动或按键、FOV、平滑、6 类武器细分）
-- **SprayControl** - 自动压枪（预估落点可视化，强度按灵敏度自动计算）
+- **跟随人手（速度复刻器）** - 修正速度 = 人手速度，1:1 复刻、绝不比你手快；方向由软件每帧自动校准——偏了自动修正回目标，锁定后还有一档弱基线轻辅助
+- **瞄准辅助** - FOV 圈 / 平滑 / 骨骼选择（头/颈/胸/盆骨）/ 可见性检查 / 部位降级 / 目标切换延迟 / 8 类武器细分参数
+- **目标响应辅助** - 自动开火（始终/按键模式、延迟、抖动、按住时长）
+- **追踪辅助** - 磁力追踪辅助（纯自动或按键、FOV、平滑、8 类武器细分）
+- **轨迹数据处理** - 自动后坐力补偿（预估落点可视化，强度按灵敏度自动计算）
 - **速度预测** - 基于玩家速度的提前量
 - **硬件设备支持** - KMBox NET / KMBox NET+ / KMBox B Pro / MAKCU
 - **预设系统** - 安全 / 竞技 / 隐蔽三套一键预设
 - **FOV 圈与预估落点屏幕可视化**
+- **Web 雷达（数据面板）** - 局域网/公网任意浏览器实时查看雷达，可分享给队友或朋友，按地图校准、密码保护、扫码即开
 
-> **获取全功能版本**：[立即购买](https://shop.95fk.net/shop/OJ3QCIOK)
+> **获取全功能版本**：[赞助获取](https://shop.95fk.net/shop/OJ3QCIOK)
 >
 > 如需咨询，请加入 QQ 群 **965428002**。
 

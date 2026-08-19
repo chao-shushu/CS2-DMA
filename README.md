@@ -4,18 +4,18 @@
 
 ![3feefde8e0a9558fad9e715bdb83c18c](https://github.com/user-attachments/assets/5f5adad4-4aa0-4f44-888e-cc24f6bc5231)
 
-An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory Access) hardware to read game memory via FPGA devices and render ESP, radar, grenade helper, and more on a separate machine. The open-source version is read-only DMA and does not include any aimbot-related features.
+An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory Access) hardware to read game memory via FPGA devices and render ESP, radar, grenade helper, and more on a separate machine. The open-source version is read-only DMA and does not include any aim-assist-related features.
 
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Visual Studio](https://img.shields.io/badge/IDE-Visual%20Studio%202026-5C2D91?logo=visual-studio&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-1.5.0-blue)
+![Version](https://img.shields.io/badge/version-2.3.4-blue)
 
 > ⭐ If you like this project, please give it a Star to support the author's continued updates!
 > Join QQ group: 965428002 for the latest updates and help.
 
-> **Full Version** (includes AimBot, TriggerBot, SprayControl, etc., via KMBox hardware): [Purchase Now](https://shop.95fk.net/shop/OJ3QCIOK)
+> **Full Version** (includes Hand Follow, Aim Assist, Recoil Data Processing, etc., via KMBox hardware): [Sponsor Now](https://shop.95fk.net/shop/OJ3QCIOK)
 
 ---
 
@@ -47,7 +47,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Bomb Timer Overlay** - Draggable on-screen C4 countdown window with defuse progress bar and kit detection
 - **Visibility Coloring** - VPK map geometry BVH ray occlusion check, two-color ESP based on visibility (visible vs hidden behind walls)
 
-<img width="1905" height="721" alt="image" src="https://github.com/user-attachments/assets/1481cf2b-075c-40dd-a895-a9cde3d9bf9d" />
+<img width="1905" height="721" alt="ESP" src="media/ESP截图.png" />
 
 ### Crosshair Overlay
 
@@ -70,7 +70,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 
 <img width="1874" height="701" alt="image" src="https://github.com/user-attachments/assets/ca3c1dbe-4044-4bd9-b57f-d39eddd66ca5" />
 
-### Web Radar
+### Web Radar (Full Version only)
 
 - Built-in WebSocket server (default port 22006, configurable in menu)
 - Frontend assets embedded into cs2.exe - single-file deployment, no extra files
@@ -91,7 +91,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 - **Bomb Escape Arrow** - Frontend directional arrow showing escape route from bomb explosion radius when planted
 - **QR Code** - In-menu QR code for quick mobile access to the radar URL
 
-<img width="773" height="457" alt="image" src="https://github.com/user-attachments/assets/5fb4025a-d06b-4f2e-b81f-ba9b55281252" />
+<img width="773" height="457" alt="Web Radar" src="media/webradar截图.png" />
 
 ### Grenade Helper
 
@@ -104,7 +104,7 @@ An external CS2 (Counter-Strike 2) tool built with C++, using DMA (Direct Memory
 
 ### Hotkeys
 
-- 15 customizable key bindings (Box/Bone/Health/Weapon/Name/Distance/EyeRay/Snapline/Bomb/Projectile/TeamCheck/WebRadar/SafeZone/Crosshair/ReloadGame)
+- 26 customizable key bindings (Full Version) / 14 (open-source) covering ESP, Web Radar, aim-assist, and feature toggles
 - Dual-source key detection: DMA (target machine) + `GetAsyncKeyState` (local machine)
 - Persistent config save/load
 
@@ -185,12 +185,13 @@ CS2-DMA/
 | Tab | Description |
 |-----|-------------|
 | **Visuals** | Box, bone, health bar, armor bar, weapon, weapon icon, ammo, distance, name, eye ray, snaplines, head dot, spectator list, player flags, visibility coloring, sound/footstep ESP, world projectile timers, dropped weapons, bomb timer, crosshair overlay, safe zone, team filter |
-| **Radar** | Web Radar toggle, port, broadcast interval, LAN URL display & copy, Cloudflare tunnel one-click start/stop, QR code, radar calibration (rotation/scale/offset), password auth, Origin allowlist, runtime stats |
+| **Radar** (Full Version) | Web Radar toggle, port, broadcast interval, LAN URL display & copy, Cloudflare tunnel one-click start/stop, QR code, radar calibration (rotation/scale/offset), password auth, Origin allowlist, runtime stats |
 | **Grenade** | Grenade helper toggle, record positions, edit/delete, per-map presets |
-| **Hotkeys** | 15 customizable key bindings (ESP toggles, feature toggles, reload game) |
+| **Hotkeys** | 26 customizable key bindings (Full Version) / 14 (open-source) - ESP toggles, feature toggles, aim-assist toggles, reload game |
 | **Settings** | Frame rate limit, VSync, render quality, monitor selection, resolution, menu hotkey, performance monitor, debug stats, debug log, player count health check, offset update, help button |
 | **Config** | Create, save, load, delete config files |
 | **Contact** | Contact author, join QQ group |
+| **Aimbot** (Full Version) | Hand Follow, aim assist, target response, tracking, recoil data processing, FOV circle, per-weapon configs |
 
 ### Offsets Outdated?
 
@@ -216,16 +217,18 @@ After each CS2 update, game offsets may become invalid, causing ESP to not displ
 
 The open-source version is read-only DMA. The following features are included in the **Full Version** (implemented via KMBox and similar hardware, not open-sourced) - feature descriptions only:
 
-- **AimBot** - FOV circle / smoothing / bone selection (Head/Neck/Chest/Pelvis) / visibility check / bone fallback / target switch delay / 6 weapon-class specific configs
-- **TriggerBot** - Auto-fire (always/hold mode, delay, jitter, hold duration)
-- **Magnet TriggerBot** - Magnetic assist (pure auto or hold, FOV, smoothing, 6 weapon-class specific configs)
-- **SprayControl** - Auto recoil control (predicted landing point visualization, intensity auto-calculated from sensitivity)
+- **Hand Follow (Speed Replicator)** - The correction speed equals your hand speed, 1:1 replication, never faster than your hand; direction is auto-calibrated every frame by the software - drift is corrected back toward the target, with a weak baseline assist when locked
+- **Aim Assist** - FOV circle / smoothing / bone selection (Head/Neck/Chest/Pelvis) / visibility check / bone fallback / target switch delay / 8 weapon-class specific configs
+- **Target Response Assist** - Auto-fire (always/hold mode, delay, jitter, hold duration)
+- **Tracking Assist** - Magnetic tracking assist (pure auto or hold, FOV, smoothing, 8 weapon-class specific configs)
+- **Recoil Data Processing** - Auto recoil compensation (predicted landing point visualization, intensity auto-calculated from sensitivity)
 - **Velocity Prediction** - Lead based on player velocity
 - **Hardware Device Support** - KMBox NET / KMBox NET+ / KMBox B Pro / MAKCU
 - **Preset System** - Safe / Competitive / Stealth one-click presets
 - **FOV Circle & Predicted Landing Point On-Screen Visualization**
+- **Web Radar (Data Panel)** - Real-time radar viewable in any browser on LAN or public network, shareable with teammates/friends, per-map calibration, password protection, QR code access
 
-> **Get the Full Version**: [Purchase Now](https://shop.95fk.net/shop/OJ3QCIOK)
+> **Get the Full Version**: [Sponsor Now](https://shop.95fk.net/shop/OJ3QCIOK)
 >
 > For questions, join QQ group **965428002**.
 
