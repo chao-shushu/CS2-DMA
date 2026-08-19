@@ -717,9 +717,12 @@
             var v = document.createElement('video');
             v.autoplay = true;
             v.muted = true; v.loop = true; v.playsInline = true; v.controls = true; v.preload = 'auto';
-            v.addEventListener('loadedmetadata', function(){ slot.classList.add('placed'); slot.appendChild(v); });
-            v.addEventListener('error', function(){ v.remove(); });
+            // iOS Safari 对未挂到 DOM 的 video 不加载元数据：先 append，再给 src，最后 load()+play()
+            slot.appendChild(v);
+            v.addEventListener('loadedmetadata', function(){ slot.classList.add('placed'); var p = v.play(); if (p && p.catch) p.catch(function(){}); });
+            v.addEventListener('error', function(){});
             v.src = encodeURI(file);
+            v.load();
         } else if (['png','jpg','jpeg','gif','webp'].indexOf(ext) >= 0) {
             var img = new Image();
             img.onload = function(){ slot.classList.add('placed'); slot.appendChild(img); };
