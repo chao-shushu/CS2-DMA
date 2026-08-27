@@ -251,6 +251,10 @@
     .changelog-box .cl-ver::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
     .changelog-box .cl-body{color:var(--text2);font-size:.92rem;line-height:1.9;white-space:pre-line}
     .changelog-box .cl-state{color:var(--text3);text-align:center;font-size:.9rem;padding:1.25rem 0}
+    .changelog-box .cl-item{border-bottom:1px solid var(--border);padding:1.15rem 0}
+    .changelog-box .cl-item:first-child{padding-top:0}
+    .changelog-box .cl-item:last-child{border-bottom:none;padding-bottom:0}
+    .changelog-box .cl-date{color:var(--text3);font-size:.75rem;font-weight:400;margin-left:.5rem;font-family:'JetBrains Mono',monospace}
 
     /* ── ANIMATIONS ── */
     .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
@@ -871,7 +875,7 @@ en:{
     f6t:'One-Click Presets',
     f6d:'One-click switch between Safe / Balanced / Stealth presets',
     f7t:'Data Dashboard', f7d:'A browser dashboard viewed live on any device. Open by QR code, share it with teammates or friends, optional password, per-map calibration.', f7a:'View live on any device, open by QR code', f7b:'Share with teammates/friends, optional password', f7c:'Per-map calibration, auto-saved',
-    cl_tag:'Changelog', cl_title:'What\'s New', cl_desc:'Latest updates from our server, always up to date.', cl_loading:'Loading changelog...', cl_empty:'No changelog yet.', cl_error:'Failed to load changelog. Please refresh.',
+    cl_tag:'Changelog', cl_title:'What\'s New', cl_desc:'Full version history from our server, always up to date.', cl_loading:'Loading changelog...', cl_empty:'No changelog yet.', cl_error:'Failed to load changelog. Please refresh.',
     hf_tag:'Marquee Feature', hf_title:'Hand Follow \u2014 the Speed Replicator',
     hf_desc:'Ever felt an assist correction outrun your own hand and yank control away? Hand Follow solves exactly that.',
     hf1t:'1:1 hand speed', hf1d:'Corrects at exactly your hand speed. It never moves faster than you \u2014 it trusts your input.',
@@ -944,7 +948,7 @@ zh:{
     f6t:'一键预设',
     f6d:'一键切换安全 / 均衡 / 隐蔽三套预设',
     f7t:'数据面板', f7d:'浏览器数据面板。手机/平板/电脑任意设备实时查看，扫码即开，可分享给队友或朋友，可设密码，按地图校准。', f7a:'任意设备实时查看，扫码即开', f7b:'可分享给队友/朋友，可设密码', f7c:'按地图校准，自动保存',
-    cl_tag:'更新日志', cl_title:'最新更新', cl_desc:'从服务器实时获取的最新版本更新内容。', cl_loading:'正在加载更新日志...', cl_empty:'暂无更新日志。', cl_error:'更新日志加载失败，请刷新重试。',
+    cl_tag:'更新日志', cl_title:'最新更新', cl_desc:'从服务器实时获取的完整版本更新历史。', cl_loading:'正在加载更新日志...', cl_empty:'暂无更新日志。', cl_error:'更新日志加载失败，请刷新重试。',
     hf_tag:'主打特性', hf_title:'跟随人手 · 速度复刻器',
     hf_desc:'有没有觉得某些辅助修正比你手还快、还把控制权抢走？跟随人手解决的正是这个问题。',
     hf1t:'1:1 人手速度', hf1d:'修正速度精确等于你的人手速度，绝不比你手快 — 它信任你的操作。',
@@ -998,7 +1002,7 @@ zh:{
 };
 </script>
 <script>
-// 从服务器获取 CS2C 最新版本与更新日志
+// 从服务器获取 CS2C 版本更新历史（每版本一条说明，最新在前）
 async function fetchVersionInfo(){
     var verEl = document.getElementById('latestVersion');
     var clEl = document.getElementById('changelogContent');
@@ -1007,33 +1011,44 @@ async function fetchVersionInfo(){
         clEl.innerHTML = '<div class="cl-state" data-i18n="' + key + '"></div>';
         if (window.applyLang) window.applyLang(window.__lang || 'zh');
     }
+    function fmtDate(ts){
+        if (!ts) return '';
+        var d = new Date(ts * 1000);
+        var p = function(n){ return n < 10 ? '0' + n : '' + n; };
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+    }
     try {
-        var res = await fetch('https://cn.chaovt.xyz/api/check-version');
+        var res = await fetch('https://cn.chaovt.xyz/api/changelog');
         var data = await res.json();
-        if (data.ok) {
-            if (verEl && data.latest_version) verEl.textContent = data.latest_version;
-            if (data.latest_version || data.update_notice) {
-                clEl.innerHTML = '';
-                if (data.latest_version) {
-                    var ver = document.createElement('div');
-                    ver.className = 'cl-ver';
-                    ver.textContent = 'v' + data.latest_version;
-                    clEl.appendChild(ver);
+        if (data.ok && data.items && data.items.length) {
+            if (verEl) verEl.textContent = data.items[0].version;
+            clEl.innerHTML = '';
+            data.items.forEach(function(item){
+                var box = document.createElement('div');
+                box.className = 'cl-item';
+                var ver = document.createElement('div');
+                ver.className = 'cl-ver';
+                ver.textContent = 'v' + item.version;
+                if (item.released_at) {
+                    var date = document.createElement('span');
+                    date.className = 'cl-date';
+                    date.textContent = fmtDate(item.released_at);
+                    ver.appendChild(date);
                 }
-                if (data.update_notice) {
+                box.appendChild(ver);
+                if (item.changelog) {
                     var body = document.createElement('div');
                     body.className = 'cl-body';
-                    body.textContent = data.update_notice;
-                    clEl.appendChild(body);
+                    body.textContent = item.changelog;
+                    box.appendChild(body);
                 }
-            } else {
-                showState('cl_empty');
-            }
+                clEl.appendChild(box);
+            });
         } else {
-            showState('cl_error');
+            showState('cl_empty');
         }
     } catch(e) {
-        console.error('Failed to fetch version info:', e);
+        console.error('Failed to fetch changelog:', e);
         showState('cl_error');
     }
 }
