@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://chao-shushu.github.io/CS2-DMA/sitemap.xml
